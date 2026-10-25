@@ -334,7 +334,7 @@ body.playing .live { min-height: 17px; }
   <span class="spacer"></span>
   <button class="pill" id="src-pill">Kilder</button>
   <button class="pill toggle" id="follow" aria-pressed="true"></button>
-  <button class="pill" id="speed">1×</button>
+  <button class="pill" id="speed">½×</button>
 </div>
 
 <div class="tip" id="tip" hidden></div>
@@ -1495,7 +1495,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     const sm = (a) => { const o = new Float64Array(NK); for (let k = 0; k < NK; k++) { let s = 0, ws = 0; for (let j = -Rr; j <= Rr; j++) { const i = clamp(k + j, 0, NK - 1); const wt = Math.exp(-(j * j) / (2 * sig * sig)); s += a[i] * wt; ws += wt; } o[k] = s / ws; } return o; };
     // screen offset: put the action in the middle of the free part of the screen
     const plate = document.querySelector(".plate").getBoundingClientRect(), bar = document.querySelector(".bar").getBoundingClientRect();
-    const freeL = small ? 0 : plate.right, freeT = small ? plate.bottom : 0, freeB = bar.top;
+    const freeL = small ? 0 : plate.right, freeT = small ? plate.bottom : 0, freeB = small && notesOn ? bar.top - 140 : bar.top;
     const ox = ((freeL + W) / 2 / W) * 2 - 1, oy = -(((freeT + freeB) / 2 / H) * 2 - 1);
     c.plan = { KS, NK, kx: sm(kx), kz: sm(kz), kr: sm(kr), kkv, distFor, ox, oy };
   }
@@ -1528,12 +1528,39 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     else { l = plate.right; if (!card.hidden) r = card.getBoundingClientRect().left; }
     return [((l + r) / W) - 1, 1 - ((top + b) / H)];
   }
+  const FOC = { w: 0, p: 0, x: 0, z: 0, l: 0, fx: 0, fz: 0, fl: 0, tx: 0, tz: 0, tl: 0, m: 1, key: null, cand: null, candT: 0 };
+  function updateFocus(dt) {
+    let f = null;
+    if (notesOn && playing && city && city.chapters && city.plan) {
+      if (capIdx >= 0 && city.chapters[capIdx].f) f = city.chapters[capIdx].f;
+      else for (const cp of city.chapters) if (cp.f && t >= cp.t - 1.0 && t < cp.t) { f = cp.f; break; }
+    }
+    // a change of place has to hold for a moment before the camera follows it, so a note handing over to the next never makes it twitch
+    if (f !== FOC.key) {
+      if (f === FOC.cand) FOC.candT += dt; else { FOC.cand = f; FOC.candT = 0; }
+      if (FOC.candT < 0.25 && !(FOC.w < 0.02 && f)) f = FOC.key;
+    }
+    const ease = (u) => u * u * (3 - 2 * u);
+    if (f && f !== FOC.key) {   // a new place: from wherever the focus is now
+      const tl = Math.log(city.plan.distFor(f[2]));
+      if (FOC.w < 0.02) { FOC.fx = FOC.tx = f[0]; FOC.fz = FOC.tz = -f[1]; FOC.fl = FOC.tl = tl; FOC.m = 1; }
+      else { FOC.fx = FOC.x; FOC.fz = FOC.z; FOC.fl = FOC.l; FOC.tx = f[0]; FOC.tz = -f[1]; FOC.tl = tl; FOC.m = 0; }
+      FOC.key = f;
+    }
+    if (!f) FOC.key = null;
+    FOC.m = Math.min(1, FOC.m + dt / 1.4); const em = ease(FOC.m);
+    FOC.x = FOC.fx + (FOC.tx - FOC.fx) * em; FOC.z = FOC.fz + (FOC.tz - FOC.fz) * em; FOC.l = FOC.fl + (FOC.tl - FOC.fl) * em;
+    FOC.p = clamp(FOC.p + (f ? 1 : -1) * dt / 1.3, 0, 1); FOC.w = ease(FOC.p);
+  }
   function directorPose(t, oT, oP) {
     const p = city.plan, f = clamp(t / p.KS, 0, p.NK - 1), i = Math.floor(f), j = Math.min(i + 1, p.NK - 1), u = f - i;
-    const cx = p.kx[i] + (p.kx[j] - p.kx[i]) * u, cz = p.kz[i] + (p.kz[j] - p.kz[i]) * u;
+    let cx = p.kx[i] + (p.kx[j] - p.kx[i]) * u, cz = p.kz[i] + (p.kz[j] - p.kz[i]) * u;
     // the zoom holds its 3-second value until then, so the opening does not dive in on the first building and pull straight back out
     const fr = clamp(Math.max(t, 3) / p.KS, 0, p.NK - 1), ir = Math.floor(fr), jr = Math.min(ir + 1, p.NK - 1), r = Math.exp(p.kr[ir] + (p.kr[jr] - p.kr[ir]) * (fr - ir));
-    const dist = p.distFor(r), az = city.az0 - 0.35 + t * 0.011 + 0.18 * Math.sin(t * 0.08), pol = 0.95 - 0.1 * smooth(dist, 1500 * SC, 8000 * SC);
+    let dist = p.distFor(r);
+    // a note with a place: the camera is there for as long as the note is on screen (see updateFocus)
+    if (FOC.w > 0) { const W = FOC.w; cx += (FOC.x - cx) * W; cz += (FOC.z - cz) * W; dist = Math.exp(Math.log(dist) + (FOC.l - Math.log(dist)) * W); }
+    const az = city.az0 - 0.35 + t * 0.011 + 0.18 * Math.sin(t * 0.08), pol = 0.95 - 0.1 * smooth(dist, 1500 * SC, 8000 * SC);
     const hy = city.TER.cam(cx, cz);
     oT.set(cx, hy, cz); oP.set(cx + dist * Math.sin(pol) * Math.sin(az), hy + dist * Math.cos(pol), cz + dist * Math.sin(pol) * Math.cos(az));
     screenShift(oT, oP);
@@ -1601,7 +1628,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
 
   // ---------------- playback state ----------------
   let t = TOTAL, playing = false, follow = !reduce, speedI = 0, ended = true, dragging = false;
-  const SPEEDS = [1, 2, 4, 0.5];
+  const SPEEDS = [0.5, 1, 2, 4];
   let camMode = "free", lastCamMode = "free";   // free | follow | tween
   const tw = { t0: 0, dur: 1, fromT: new THREE.Vector3(), fromP: new THREE.Vector3(), toT: new THREE.Vector3(), toP: new THREE.Vector3(), path: false, then: "free" };
   let needsRender = true, labelsDirty = true;
@@ -2255,6 +2282,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     }
     if (introStart && !reduce && !still) { const f = clamp((now - introStart) / 4200, 0, 1); $("countdown").style.width = (f * 100).toFixed(1) + "%"; }
     // camera
+    updateFocus(Math.min(dt, 0.1));
     if (camMode !== "free") lastCamMode = camMode;   // the free camera below notices when it takes over
     if (camMode === "tween") {
       const u = clamp((now / 1000 - tw.t0) / tw.dur, 0, 1), e = u * u * (3 - 2 * u);
@@ -2367,7 +2395,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     applyStrings();
     city.firstYear = city.W.Y0 + 3;
     SC = city.M.scale || 1; controls.maxDistance = 22000 * SC; controls.minDistance = 60 * Math.sqrt(SC);
-    city.chapters = (city.M.chapters || []).map((c) => ({ y: c.y, orig: c.t, text: c.t, t: c.y === 0 ? 0.3 : c.y === 9999 ? TOTAL - 3.6 : city.W.yearToT(c.y + 0.2) }));
+    city.chapters = (city.M.chapters || []).map((c) => ({ y: c.y, f: c.f, orig: c.t, text: c.t, t: c.y === 0 ? 0.3 : c.y === 9999 ? TOTAL - 3.6 : city.W.yearToT(c.y + 0.2) }));
     for (const cp of city.chapters) cp.text = chapterText(cp);
     $("l-hoods").textContent = cityText("hoods");
     city.az0 = Math.atan2(city.M.view.pos[0] - city.M.view.target[0], city.M.view.pos[2] - city.M.view.target[2]);
