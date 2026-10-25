@@ -468,7 +468,7 @@ const STRINGS = {
   },
 };
 // ---------------- Holmestrand: the town's own texts (Norwegian only; 60 and the like are filled in from the data when the page is built) ----------------
-Object.assign(STRINGS.no, { range: (a, b) => `Datert ${a}–${b}`, approx: (y) => `ca. ${y}`, builtGone: (y, e) => `Bygget ${y}, revet ${e}`, keyHist: "Jernbaner og E18 i sin tid" });
+Object.assign(STRINGS.no, { range: (a, b) => `Datert ${a}–${b}`, approx: (y) => `ca. ${y}`, builtGone: (y, e) => `Bygget ${y}, revet ${e}`, keyHist: "Jernbaner og E18 i sin tid", keyRecent: "Nylig bygget" });
 const CITY_NAMES = { hol: { no: "Holmestrand" } };
 const TITLES = { hol: { no: "Holmestrands årringer" } };
 const CITYTEXT = {
@@ -562,7 +562,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
 
   // ---------------- shared uniforms and materials ----------------
   const U = {
-    uT: { value: TOTAL }, uNow: { value: 2026 }, uMode: { value: 0 }, uUndFull: { value: 0 }, uHover: { value: 0 }, uSel: { value: 0 },
+    uT: { value: TOTAL }, uNow: { value: 2026 }, uMode: { value: 1 }, uUndFull: { value: 0 }, uHover: { value: 0 }, uSel: { value: 0 },
     uRamp: { value: RAMP.map((r) => hex(r[1])) }, uRampY: { value: RAMP.map((r) => r[0]) }, uCats: { value: CATS.map(hex) }, uWallC: { value: WALLC.map(hex) }, uRoofC: { value: ROOFC.map(hex) },
     uWhite: { value: hex(C.white) }, uFoam: { value: hex(C.foam) }, uUnd: { value: hex(C.und) }, uPre: { value: hex(C.pre) }, uBuild: { value: hex(C.build) }, uSelC: { value: hex(C.sel) },
     uFocal: { value: 1000 }, uDpr: { value: 1 }, uMarkOn: { value: 0 },
@@ -595,10 +595,11 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
         vTop = topV; vY = transformed.y;
         bool pre = aYear > 0.5 && aYear < 1.5;
         float fresh = pre ? 0.0 : 1.0 - smoothstep(0.0, 30.0, uNow - aYear);
-        vec3 base = uMode < 0.5 ? mix(uWhite, uFoam, fresh * fresh) : (uMode < 1.5 ? (pre ? uPre : ramp(aYear)) : catc(aCat));
+        float young = pre ? 0.0 : 1.0 - smoothstep(0.0, 10.0, uNow - aYear);
+        vec3 base = uMode < 0.5 ? mix(uWhite, uFoam, fresh * fresh) : (uMode < 1.5 ? (pre ? uPre : mix(ramp(aYear), uFoam, 0.8 * young)) : catc(aCat));
         vCol = und ? uUnd : base;
         float fl = (1.0 - smoothstep(0.7, 1.5, age)) * step(0.0, age);
-        vFlash = (und || aCat > 4.5 || uMode > 0.5) ? 0.0 : (uMarkOn > 0.5 ? fl : step(0.5, fl));   // a paused frame shows clean orange, never a half-faded tone
+        vFlash = (und || aCat > 4.5 || uMode > 1.5) ? 0.0 : (uMarkOn > 0.5 ? fl : step(0.5, fl));   // a paused frame shows clean orange, never a half-faded tone
         vHi = abs(aGroup - uSel) < 0.5 ? 2.0 : (abs(aGroup - uHover) < 0.5 ? 1.0 : 0.0);
         vWallC = wallc(mod(aMat, 8.0)); vRoofC = roofc(floor(aMat / 8.0)); vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
     sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
@@ -1698,7 +1699,8 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
            <div class="key-row" style="gap:8px"><span>${S.keyNew}</span><span class="ramp" style="flex:1;background:linear-gradient(90deg,${C.foam},#a9c4b1 45%,${C.white})"></span><span>${S.keyOld}</span></div>`;
     } else if (m === 1) {
       const n = RAMP.length - 1;
-      h = `<div class="ramp" style="background:linear-gradient(90deg,${RAMP.map((r, i) => `${r[1]} ${(i / n * 100).toFixed(1)}%`).join(",")})"></div>
+      h = `<div class="key-row"><i class="sw" style="background:${C.build}"></i>${S.keyBuilding}</div><div class="key-row"><i class="sw" style="background:${C.foam}"></i>${S.keyRecent}</div>`;
+      h += `<div class="ramp" style="background:linear-gradient(90deg,${RAMP.map((r, i) => `${r[1]} ${(i / n * 100).toFixed(1)}%`).join(",")})"></div>
            <div class="ramp-ticks">${RAMP.map((r, i) => (i % 2) ? "" : `<span style="left:${(i / n * 100).toFixed(1)}%">${i === 0 ? "&lt;" + r[0] : r[0]}</span>`).join("")}</div>`;
       if (city && city.preCount) h += `<div class="key-row"><i class="sw" style="background:${C.pre}"></i>${S.pre1900Key}</div>`;
     } else if (m === 2) {
@@ -2134,12 +2136,12 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   function syncFold() { const m = plateEl.classList.contains("mini"); $("fold").setAttribute("aria-expanded", String(!m)); $("fold").setAttribute("aria-label", m ? S.foldOut : S.foldIn); $("fold").title = m ? S.foldOut : S.foldIn; }
   function setPlateMini(v, save) {
     plateEl.classList.toggle("mini", v); syncFold();
-    if (save) store.set("aarringe-plate", v ? "mini" : "full");
+    if (save) store.set("aarringe-plate-hol", v ? "mini" : "full");
     if (city) { planShots(); if (camMode === "follow") startTween(null, null, 0.9, true); invalidate(); }
   }
   $("fold").onclick = (e) => { e.stopPropagation(); setPlateMini(!plateEl.classList.contains("mini"), true); };
   $("year").onclick = () => { if (plateEl.classList.contains("mini")) setPlateMini(false, true); };
-  if (store.get("aarringe-plate") === "mini") setPlateMini(true, false);
+  if (store.get("aarringe-plate-hol") !== "full") setPlateMini(true, false);
   $("intro-x").onclick = () => { hideIntro(); setFollow(false); invalidate(); };
   $("src-btn").onclick = openSources; $("src-pill").onclick = openSources;
   $("about-btn").onclick = () => { sheetKind = "about"; $("sheet-body").parentNode.scrollTop = 0; $("sheet-body").innerHTML = aboutHtml(); $("sheet").hidden = false; $("menu").hidden = true; $("menu-btn").setAttribute("aria-expanded", "false"); $("sheet-x").focus(); };
@@ -2277,7 +2279,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       }
     }
     if (Snd.on && Snd.ctx) soundTick(prevT, t, dt);
-    U.uT.value = t; U.uNow.value = city.W.tToYear(t); U.uMarkOn.value = (playing || rewinding) && U.uMode.value === 0 ? 1 : 0;
+    U.uT.value = t; U.uNow.value = city.W.tToYear(t); U.uMarkOn.value = (playing || rewinding) && U.uMode.value <= 1 ? 1 : 0;
     if (prevT !== t || rewinding) updateCaption(prevT);
     updateHud();
     if (needsRender) {
