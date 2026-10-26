@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="no">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="description" content="Holmestrand og Rove vokser frem bygning for bygning, med jernbaner og veier som kommer og går.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Holmestrands årringer">
@@ -37,8 +37,13 @@
   --sc: "Alegreya SC", Georgia, serif;
   --lift: 0 0 0 1px rgba(42, 34, 29, 0.24);
 }
-html, body { height: 100%; }
+html, body { height: 100%; overscroll-behavior: none; }
 body { margin: 0; background: var(--table); color: var(--ink); font: 14.5px/1.4 var(--f); font-variant-numeric: lining-nums; overflow: hidden; -webkit-font-smoothing: antialiased; }
+/* The page is an app: it never zooms, slides or rubber-bands. Only the map moves (the canvas has its own touch-action), and only
+   the sheets and the search results scroll, each inside itself. Text can be selected in the sheets and typed in the search. */
+body { position: fixed; inset: 0; width: 100%; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.sheet-in, .results { touch-action: pan-y; overscroll-behavior: contain; }
+.sheet-in, input { -webkit-user-select: text; user-select: text; }
 [hidden] { display: none !important; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -2330,6 +2335,25 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     select(g, false);
   });
   cv.addEventListener("contextmenu", (e) => { if (camMode === "walk") e.preventDefault(); });
+  // the page itself never zooms or slides: a pinch on the panels, a ctrl-wheel or a trackpad pinch does nothing to the page,
+  // and on the map a trackpad pinch in Safari (which sends gesture events, not a wheel) zooms the map as the wheel does
+  const inScroller = (t) => !!(t && t.closest && t.closest(".sheet-in, .results"));
+  document.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 1 || !(inScroller(e.target) || (e.target.closest && e.target.closest("input[type=range]")))) e.preventDefault();
+  }, { passive: false });
+  let lastCtrlWheel = 0, touching = 0, gScale = 1;
+  document.addEventListener("wheel", (e) => { if (e.ctrlKey) { e.preventDefault(); lastCtrlWheel = performance.now(); } }, { passive: false });
+  for (const ev of ["touchstart", "touchend", "touchcancel"]) document.addEventListener(ev, (e) => { touching = e.touches.length; }, { passive: true, capture: true });
+  for (const ev of ["gesturestart", "gesturechange", "gestureend"]) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
+  cv.addEventListener("gesturestart", (e) => { gScale = e.scale || 1; });
+  cv.addEventListener("gesturechange", (e) => {
+    const k = (e.scale || 1) / gScale; gScale = e.scale || 1;
+    if (touching || performance.now() - lastCtrlWheel < 400 || !city || !isFinite(k) || k <= 0) return;   // fingers on glass are handled by the touch code
+    if (camMode === "walk") { WALK.fov = clamp(WALK.fov / k, FOV_MIN, FOV_MAX); return; }
+    if (camMode !== "free") { setFollow(false); camMode = "free"; }
+    const tg = controls.target, d = clamp(camera.position.distanceTo(tg) / k, controls.minDistance, controls.maxDistance);
+    camera.position.sub(tg).setLength(d).add(tg); hideIntro(true); invalidate();
+  });
   cv.addEventListener("wheel", (e) => {
     if (camMode === "walk") { WALK.fov = clamp(WALK.fov * Math.exp(e.deltaY * (e.ctrlKey ? 0.01 : 0.0012)), FOV_MIN, FOV_MAX); return; }   // the wheel, or a trackpad pinch, zooms on the street
     if (camMode !== "free") { setFollow(false); camMode = "free"; } hideIntro(true);
