@@ -233,6 +233,9 @@ body.playing .live { min-height: 17px; }
 @keyframes walkwait { 50% { opacity: 0.25; } }
 .walkchip .link { font-weight: 700; flex: none; font-size: 13px; padding: 6px 2px; }
 .walkchip .x { border: 0; background: none; font-size: 21px; line-height: 1; padding: 4px 9px; flex: none; }
+.walkchip .tog { flex: none; height: 28px; padding: 0 9px; border: 1px solid var(--ink); background: none; font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+.walkchip .tog::before { content: ""; width: 8px; height: 8px; box-sizing: border-box; border: 1.5px solid var(--ink); }
+.walkchip .tog[aria-pressed="true"]::before { background: var(--build); border-color: var(--build); }
 body.walking #follow { display: none; }
 body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 @media (prefers-reduced-motion: reduce) { .walkchip { transition: none; } .walkchip .dot { animation: none; } }
@@ -347,7 +350,7 @@ body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 
 <div class="caption out" id="caption" aria-live="polite" inert><button class="x" id="cap-x"></button><div class="cap-y" id="cap-y"></div><p id="cap-t"></p><button class="link cap-off" id="cap-off"></button></div>
 <div class="toast" id="toast" role="status" hidden><span id="toast-t"></span><button class="link" id="toast-undo"></button></div>
-<div class="walkchip out" id="walkchip" hidden><i class="dot" id="walk-dot"></i><span id="walk-s"></span><button class="link" id="walk-a" hidden></button><button class="x" id="walk-x">×</button></div>
+<div class="walkchip out" id="walkchip" hidden><i class="dot" id="walk-dot"></i><span id="walk-s"></span><button class="link" id="walk-a" hidden></button><button class="tog" id="walk-c" aria-pressed="false" hidden></button><button class="x" id="walk-x">×</button></div>
 
 <div class="intro" id="intro" hidden>
   <button class="x" id="intro-x"></button>
@@ -397,7 +400,7 @@ body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 <p><b>Kjente bygg.</b> Holmestrand kirke (1674), Holstgården (1756), Fattighuset (1760), Backergården (1806), det gamle rådhuset (1864), Jernbanesmia (1880), Kullboden (1910) og rådhuset fra 1964 har år fra Holmestrand kommunes <a href="https://holmestrand.kommune.no/_f/p1/i9f9d81cc-54eb-4b27-8b04-b99c7a9b8652/kulturloype-holmestrand-sentrum-nord.pdf" target="_blank" rel="noopener">kulturløype for sentrum nord</a>. Inngangen til stasjonen i fjellet har år fra OpenStreetMap.</p>
 <p><b>Funnet for hånd.</b> For de største og viktigste bygningene uten år er årstallet søkt opp ett for ett, og kortet sier hvor det kommer fra. Det gjelder blant annet Ekeberg skole og flerbrukshallen, Gjøklep ungdomsskole, sykehjemmet og omsorgsboligene på Rove, Gausetangen og Gaupås barnehager, Borgen forsamlingslokale, «Casino» fra den tyske Grefsrud leir, Telebygget, Filadelfiakirken og Botne menighets bedehus, Fibo-fabrikken på Ekelund, høydebassenget ved Ekebergveien, Esso-stasjonen og Glassmagasinet i Langgaten, borettslagene i Barlinveien, på Bilet og i Hagemannsskogen, Plantasjen, kornsiloen, renseanlegget, og hovedbygningen og Gamle Gausen på Nedre Gausen. Kildene er Holmestrand kommune (blant annet <a href="https://holmestrand.kommune.no/_f/p1/i46dcabfa-78d6-4f21-9e54-bdaba9fb16a9/kpa-vedlegg-6-kulturminner-og-miljoer-kst-190624.pdf" target="_blank" rel="noopener">kulturminneplanen</a>), Wikipedia, Store norske leksikon, eiendomsdata fra Hjemla for den enkelte adressen, salgsannonser på Finn, utbyggere og entreprenører, og lokalavisene i <a href="https://www.nb.no/search" target="_blank" rel="noopener">Nasjonalbibliotekets nettbibliotek</a>, mest Jarlsberg Avis, og Statsbyggs landsverneplan for Nedre Gausen. 53 bygninger har år på denne måten. Der kildene var uenige, eller ikke sa sikkert hvilket bygg de gjaldt, står bygningen fortsatt uten år.</p>
 <p><b>Tips fra lesere.</b> Modellen ble delt i Facebook-gruppen «Holmestrand før og nå» i oktober 2026, og lesere har sendt tips om enkelte hus. Der et årstall eller et navn bare bygger på et tips, sier kortet det. Tips som kunne sjekkes, er sjekket. Gausetangen skole sto før som bygget i 2024, men det var året skolen ble bygget om til leiligheter. Den står nå uten år, fordi kildene er uenige om når skolen ble reist.</p>
-<p><b>Gå rundt.</b> «Gå rundt» setter deg ned på bakken der du står, i øyehøyde. Posisjonen til telefonen flytter deg når du går, og kompasset snur bildet dit du peker telefonen. Uten posisjon, eller utenfor Holmestrand, starter turen i sentrum, og du går ved å trykke på bakken eller med piltastene. Trykk på play for å se byen vokse frem rundt deg. Posisjonen brukes bare i nettleseren din og sendes ikke noe sted.</p>
+<p><b>Gå rundt.</b> «Gå rundt» setter deg ned på bakken der du står, i øyehøyde. Posisjonen til telefonen flytter deg når du går. Slår du på Kompass, snur bildet seg dit du peker telefonen. Uten posisjon, eller utenfor Holmestrand, starter turen i sentrum. Du kan også dobbelttrykke hvor som helst på kartet for å gå ned der, eller på et hus for å stå foran det. På bakken drar du for å se deg rundt og trykker på bakken for å gå dit. Med to fingre kniper du for å zoome og drar for å flytte deg. På en datamaskin zoomer du med rullehjulet og går med piltastene eller høyre museknapp. Trykk på play for å se byen vokse frem rundt deg. Posisjonen brukes bare i nettleseren din og sendes ikke noe sted.</p>
 <p><b>Aluminiumsverket.</b> Verket i sentrum er ett stort bygg i Matrikkelen. Det ble etablert i 1919 og er bygget ut i mange omganger siden, blant annet med et nytt valseverk under krigen og en stor utbygging 1945–50, men ingen kilde sier hvilken hall som er fra når. Derfor reiser hele dagens anlegg seg i 1919, og kortet sier det. De mindre byggene rundt det og hallene på Vesthøy, der verket bygget lakkeringsanlegg og trådvalseverk fra 1960, står fortsatt uten år. Kilder: <a href="https://snl.no/Speira_Holmestrand" target="_blank" rel="noopener">Store norske leksikon</a> og <a href="https://vestfoldmuseene.no/aluminiummuseet/1945-1967" target="_blank" rel="noopener">Aluminiummuseet</a>.</p>
 <p><b>Det nye rådhuset.</b> Rådhuset ved stasjonen åpnet i oktober 2026 og er for nytt for både OpenStreetMap og laserdataene. Formen er tegnet etter arkitektenes illustrasjoner (Spir Arkitekter for Bane NOR Eiendom): to murfløyer i fire etasjer ut fra fjellet, et parti langs fjellet mellom dem og Jernbanesmia foran gårdsrommet, der den søndre fløyen trapper ned til tre etasjer mot plassen. Størrelsen følger arealet, 5&nbsp;950&nbsp;m² på fire etasjer, og plasseringen Matrikkelens punkt for bygningen. Omrisset og høydene er altså omtrentlige. Kilder: <a href="https://holmestrand.kommune.no/nytt-radhus/" target="_blank" rel="noopener">Holmestrand kommune</a>, <a href="https://www.veidekke.com/investor-relations/company-disclosures/veidekke-new-city-hall-in-holmestrand/" target="_blank" rel="noopener">Veidekke</a> og <a href="https://byggfaktanyheter.no/nye-holmestrand-radhus-med-hoye-miljoambisjoner/" target="_blank" rel="noopener">Byggfakta</a>.</p>
 <p><b>Stasjonen i fjellet.</b> Stasjonen ligger 150 meter inne i fjellet og åpnet 28. november 2016. Portalbyggene ved nordre og søndre inngang er tegnet etter overflatemodellen og arkitektenes bilder (<a href="https://gottliebpaludan.com/en/projects/holmestrand-station" target="_blank" rel="noopener">Gottlieb Paludan Architects</a>): et skrått betongtak som stiger mot den åpne portalen, med inngangen trukket inn under det. Stasjonshallen rundt de to plattformene og gangtunnelene fra inngangene, også den fra heisen opp til Rove, er tegnet stiplet fra åpningen, etter OpenStreetMap. Den søndre inngangen har året fra åpningen, heishuset på Rove står uten år. Kilder: <a href="https://en.wikipedia.org/wiki/Holmestrand_Station" target="_blank" rel="noopener">Wikipedia</a> og <a href="https://betong.net/wp-content/uploads/Vinner-2017-Holmestrand-st._Jury-begrunnelse.pdf" target="_blank" rel="noopener">juryen for Betongtavlen 2017</a>.</p>
@@ -527,10 +530,13 @@ Object.assign(STRINGS.no, {
   walk: "Gå rundt", walkLabel: "Gå rundt i byen der du står", walkEnd: "Avslutt gåturen",
   walkFinding: "Finner posisjonen din …", walkHere: (m) => `Følger deg · ±${m} m`, walkWeak: (m) => `Svakt GPS-signal · ±${m} m`,
   walkFree: (touch) => touch ? "Trykk på bakken for å gå dit" : "Gå med piltastene eller klikk på bakken",
-  walkCompass: "Kompass", walkToMe: "Følg meg",
-  walkHi: (compass) => (compass ? "Hold telefonen opp og se deg rundt." : "Dra for å se deg rundt.") + " Trykk på play for å se byen vokse frem rundt deg.",
+  walkCompass: "Kompass", walkCompassLabel: "La telefonen styre hvor du ser", walkToMe: "Følg meg",
+  walkNoCompass: "Fant ikke noe kompass i denne enheten. Dra for å se deg rundt.",
+  walkHi: (compass) => (compass ? "Dra for å se deg rundt, eller trykk på Kompass og hold telefonen opp." : "Dra for å se deg rundt.") + " Trykk på play for å se byen vokse frem rundt deg.",
   walkOutside: "Du er ikke i Holmestrand nå, så turen starter i sentrum. Trykk på play for å se byen vokse frem rundt deg.",
   walkNoPos: "Fant ikke posisjonen din, så turen starter i sentrum. Trykk på play for å se byen vokse frem rundt deg.",
+  walkDropped: (touch) => touch ? "Dra for å se deg rundt. Knip for å zoome, og dra med to fingre for å flytte deg." : "Dra for å se deg rundt og rull for å zoome. Gå med piltastene, eller dra med høyre museknapp.",
+  walkHint: (touch) => touch ? "Dobbelttrykk hvor som helst på kartet for å gå ned på bakken der." : "Dobbeltklikk hvor som helst på kartet for å gå ned på bakken der.",
 });
 // where a walk starts without a position in town: the square north of the 1964 town hall, looking towards the church (metres east, north; heading in degrees)
 const WALK_START = { hol: [91, 50, -56] };
@@ -1701,9 +1707,10 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   // walking (see "walking" below): where you stand, which way you look, and where the phone says you are
   const WALK = { on: false, landed: false, gps: false, watch: null, listening: false, acc: 0, lastFix: null, x: 0, z: 0, wx: 0, wz: 0, eye: 0, yaw: 0, pitch: 0, startYaw: 0,
     compass: false, compassOk: false, devAbs: false, devYaw: 0, devPitch: 0, devT: -1e9, off: null, go: null, keys: new Set(), fly: null, flyE: 0,
-    timer: 0, chipT: 0, follow0: true, pose: new THREE.Vector3(), look: new THREE.Vector3() };
+    timer: 0, chipT: 0, compassT: 0, follow0: true, fov: 56, pose: new THREE.Vector3(), look: new THREE.Vector3() };
   const walkFov = () => isSmall() ? 64 : 56;
-  const baseFov = () => WALK.on ? walkFov() : isSmall() ? 50 : 34;
+  const baseFov = () => WALK.on ? (WALK.landed ? WALK.fov : walkFov()) : isSmall() ? 50 : 34;
+  const FOV_MIN = 16, FOV_MAX = 80;   // how far you can zoom in and out on the street
   let needsRender = true, labelsDirty = true;
   const invalidate = () => { needsRender = true; labelsDirty = true; };
 
@@ -1715,6 +1722,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     $("q").placeholder = S.search; $("q").setAttribute("aria-label", S.search);
     $("walk-l").textContent = S.walk; $("walk-btn").setAttribute("aria-label", S.walkLabel); $("walk-btn").title = S.walkLabel;
     $("walk-x").setAttribute("aria-label", S.walkEnd); $("walk-x").title = S.walkEnd;
+    $("walk-c").textContent = S.walkCompass; $("walk-c").setAttribute("aria-label", S.walkCompassLabel); $("walk-c").title = S.walkCompassLabel;
     $("menu-btn").textContent = S.view; $("l-colour").textContent = S.colour; $("l-hoods").textContent = city ? cityText("hoods") : S.hoods; $("l-lang").textContent = S.language; $("l-roads").textContent = S.roads; $("l-undated").textContent = S.undated; $("l-notes").textContent = S.notes; $("l-sound").textContent = S.sound; $("about-btn").textContent = S.about;
     $("follow").textContent = S.follow; $("follow").title = S.followLabel; $("follow").setAttribute("aria-label", S.followLabel);
     $("card-x").setAttribute("aria-label", S.close); $("card-x").textContent = "×";
@@ -1984,7 +1992,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     const showAll = !playing;
     const nowMs = performance.now();
     for (const l of [...c.lmsOrder.filter((q) => q.on), ...c.lmsOrder.filter((q) => !q.on)]) {
-      let vis = !rewinding && t >= l.t && (showAll || t - l.t < 7) && (l.on || !(nowMs - (l.offAt || 0) < 400)) && (camMode !== "walk" || l.v.distanceToSquared(camera.position) < 450 * 450);   // on the street, only the landmarks nearby
+      let vis = !rewinding && t >= l.t && (showAll || t - l.t < 7) && (l.on || !(nowMs - (l.offAt || 0) < 400)) && (camMode !== "walk" || (l.v.distanceToSquared(camera.position) < 450 * 450 && inSight(l.v, l.g ?? -1)));   // on the street, only landmarks nearby and in sight
       let x = 0, y = 0;
       if (vis) { _v.copy(l.v).project(camera); x = (_v.x * 0.5 + 0.5) * Wd; y = (-_v.y * 0.5 + 0.5) * Hd; vis = _v.z < 1 && x > 0 && x < Wd && y > 0 && y < Hd; }
       if (vis) {
@@ -2255,19 +2263,42 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   $("card-x").onclick = () => select(-1);
 
   const cv = renderer.domElement;
-  let down = null, lastHover = 0, hoverG = -1;
+  let down = null, lastHover = 0, hoverG = -1, lastTap = null;
+  // on the street: one finger (or the left mouse button) turns your head, two fingers pinch to zoom and slide to move you,
+  // the right mouse button moves you too
+  const fingers = new Map(); let pinch = null;
+  const STEP_PX = 0.08;   // metres moved per pixel of a two-finger or right-button drag
   cv.addEventListener("pointerdown", (e) => {
-    if (camMode === "walk" && !e.isPrimary) return;
-    down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, moved: false }; hideIntro(true);
-    if (camMode === "walk") try { cv.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is gone */ }
+    if (camMode === "walk") {
+      fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      try { cv.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is gone */ }
+      if (fingers.size >= 2) {
+        const [a, b] = [...fingers.values()];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, fov: WALK.fov, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, sx: (a.x + b.x) / 2, sy: (a.y + b.y) / 2, live: false };
+        if (down) down.moved = true; return;
+      }
+    }
+    down = { x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, moved: false, move: e.button === 2 }; hideIntro(true);
   });
   cv.addEventListener("pointermove", (e) => {
-    // on the street a drag turns your head: the scene follows the finger, and the compass lets go
-    if (down && camMode === "walk") {
-      if (!e.isPrimary) return;
+    if (camMode === "walk" && fingers.has(e.pointerId)) {
+      fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && fingers.size >= 2) {
+        const [a, b] = [...fingers.values()], d = Math.hypot(a.x - b.x, a.y - b.y) || 1, mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        WALK.fov = clamp(pinch.fov * pinch.d / d, FOV_MIN, FOV_MAX);
+        if (!pinch.live && Math.hypot(mx - pinch.sx, my - pinch.sy) > 14) { pinch.live = true; pinch.mx = mx; pinch.my = my; }   // a pinch alone does not move you
+        if (pinch.live) { walkMove((my - pinch.my) * -STEP_PX, (mx - pinch.mx) * -STEP_PX); pinch.mx = mx; pinch.my = my; }
+        return;
+      }
+      if (!down) return;
       const dx = e.clientX - down.lx, dy = e.clientY - down.ly; down.lx = e.clientX; down.ly = e.clientY;
       if (!down.moved && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) down.moved = true;
-      if (down.moved) { const k = camera.fov / innerHeight; WALK.yaw -= dx * k; WALK.pitch = clamp(WALK.pitch + dy * k, -70, 60); if (WALK.compass) { WALK.compass = false; syncChip(); } tip.hidden = true; }
+      if (!down.moved) return;
+      tip.hidden = true;
+      if (down.move || (e.buttons & 2)) { walkMove(-dy * STEP_PX, -dx * STEP_PX); return; }   // drag the ground: up moves you forward
+      // the scene follows the finger, and the compass lets go
+      const k = camera.fov / innerHeight; WALK.yaw -= dx * k; WALK.pitch = clamp(WALK.pitch + dy * k, -70, 60);
+      if (WALK.compass) { WALK.compass = false; syncChip(); }
       return;
     }
     if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) { down.moved = true; if (camMode !== "free" && camMode !== "walk") { setFollow(false); camMode = "free"; } tip.hidden = true; }
@@ -2280,15 +2311,36 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     }, 70);
   });
   cv.addEventListener("pointerleave", () => { clearTimeout(lastHover); tip.hidden = true; if (hoverG >= 0) { hoverG = -1; U.uHover.value = 0; invalidate(); } });
+  const liftFinger = (e) => {
+    fingers.delete(e.pointerId);
+    if (fingers.size < 2) pinch = null;
+    if (fingers.size === 1 && down) { const r = [...fingers.values()][0]; down.lx = r.x; down.ly = r.y; }   // the finger left behind carries on from where it is
+  };
+  cv.addEventListener("pointercancel", (e) => { liftFinger(e); if (!fingers.size) down = null; });
   cv.addEventListener("pointerup", (e) => {
-    if (!down) return; const moved = down.moved; down = null;
+    liftFinger(e);
+    if (!down) return; const moved = down.moved; if (fingers.size) return; down = null;
     if (moved) return;
+    // two taps close together: down onto the ground there (on the map), or a walk there (on the street)
+    const now = performance.now(), dbl = !!lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30;
+    lastTap = dbl ? null : { t: now, x: e.clientX, y: e.clientY };
+    if (dbl && camMode !== "walk" && dropAt(e.clientX, e.clientY)) return;
     const g = pick(e.clientX, e.clientY); tip.hidden = true;
     if (camMode === "walk" && g < 0) { select(-1); const h = groundHit(e.clientX, e.clientY); if (h) walkTo(h.x, h.z); return; }   // a tap on the ground walks you there
     select(g, false);
   });
-  cv.addEventListener("wheel", () => { if (camMode !== "free" && camMode !== "walk") { setFollow(false); camMode = "free"; } hideIntro(true); }, { passive: true });
-  controls.addEventListener("change", () => { labelsDirty = true; needsRender = true; });
+  cv.addEventListener("contextmenu", (e) => { if (camMode === "walk") e.preventDefault(); });
+  cv.addEventListener("wheel", (e) => {
+    if (camMode === "walk") { WALK.fov = clamp(WALK.fov * Math.exp(e.deltaY * (e.ctrlKey ? 0.01 : 0.0012)), FOV_MIN, FOV_MAX); return; }   // the wheel, or a trackpad pinch, zooms on the street
+    if (camMode !== "free") { setFollow(false); camMode = "free"; } hideIntro(true);
+  }, { passive: true });
+  controls.addEventListener("change", () => {
+    labelsDirty = true; needsRender = true;
+    // close in over the town for the first time: a word about going down on the ground
+    if (camMode === "free" && city && !WALK.on && $("toast").hidden && camera.position.distanceTo(controls.target) < 260 * Math.sqrt(SC) && store.get("aarringe-walk-hint") !== "seen") {
+      store.set("aarringe-walk-hint", "seen"); showToast(S.walkHint(touchFirst));
+    }
+  });
   function closeMenu(focusBtn) { $("menu").hidden = true; $("menu-btn").setAttribute("aria-expanded", "false"); if (focusBtn) $("menu-btn").focus(); }
   function closeSheet() { $("sheet").hidden = true; $("menu-btn").focus(); }
   document.addEventListener("keydown", (e) => {
@@ -2302,6 +2354,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     // on the street the arrows and W A S D walk and turn instead of moving the year
     const wk = camMode === "walk" ? walkKey(e.key) : null;
     if (wk) { e.preventDefault(); WALK.keys.add(wk); if (wk !== "Shift") { WALK.go = null; if (WALK.gps) { WALK.gps = false; syncChip(); } } return; }
+    if (camMode === "walk" && (e.key === "+" || e.key === "=" || e.key === "-")) { e.preventDefault(); WALK.fov = clamp(WALK.fov * (e.key === "-" ? 1.2 : 1 / 1.2), FOV_MIN, FOV_MAX); return; }
     const yr = city.W.tToYear(t);
     if (e.key === " ") { if (e.target.closest("button")) return; e.preventDefault(); $("play").click(); }
     else if (e.key === "ArrowRight" || e.key === "ArrowLeft") { if (e.target === range) return; e.preventDefault(); hideIntro(); const step = (e.shiftKey ? 10 : 1) * (e.key === "ArrowRight" ? 1 : -1); jumpTo(city.W.yearToT(Math.floor(yr) + step + 0.5)); }
@@ -2394,6 +2447,32 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       if (!moved) return;
     }
   }
+  function insideStanding(P) {
+    const G = walkGrid(), D = city.D, list = G.cells.get(Math.floor(P.x / G.CELL) + "," + Math.floor(P.z / G.CELL)); if (!list) return false;
+    for (const i of list) {
+      if (!standsNow(D.group[i])) continue;
+      let inside = false;
+      for (const a of G.rings[i]) { const n = a.length / 2; for (let k = 0, j = n - 1; k < n; j = k++) { const xk = a[2 * k], zk = a[2 * k + 1], xj = a[2 * j], zj = a[2 * j + 1]; if ((zk > P.z) !== (zj > P.z) && P.x < (xj - xk) * (P.z - zk) / (zj - zk) + xk) inside = !inside; } }
+      if (inside) return true;
+    }
+    return false;
+  }
+  // whether the line from your eyes to a point is free of hills and of standing buildings other than the point's own
+  function inSight(v, own) {
+    const G = walkGrid(), D = city.D, c = city, o = camera.position, dx = v.x - o.x, dy = v.y - o.y, dz = v.z - o.z, L = Math.hypot(dx, dz);
+    for (let s = 3; s < L - 3; s += 4) {
+      const f = s / L, x = o.x + dx * f, z = o.z + dz * f, y = o.y + dy * f;
+      if (groundY(x, z) > y) return false;
+      const list = G.cells.get(Math.floor(x / G.CELL) + "," + Math.floor(z / G.CELL)); if (!list) continue;
+      for (const i of list) {
+        const g = D.group[i]; if (g === own || !standsNow(g) || c.gBase[g] + c.gH[g] < y) continue;
+        let inside = false;
+        for (const a of G.rings[i]) { const n = a.length / 2; for (let k = 0, j = n - 1; k < n; j = k++) { const xk = a[2 * k], zk = a[2 * k + 1], xj = a[2 * j], zj = a[2 * j + 1]; if ((zk > z) !== (zj > z) && x < (xj - xk) * (z - zk) / (zj - zk) + xk) inside = !inside; } }
+        if (inside) return false;
+      }
+    }
+    return true;
+  }
   // the ground under a point on the screen, by stepping along the ray until it goes under the terrain
   function groundHit(cx, cy) {
     _w.set((cx / innerWidth) * 2 - 1, -(cy / innerHeight) * 2 + 1, 0.5).unproject(camera).sub(camera.position).normalize();
@@ -2407,6 +2486,13 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       a = s; s += Math.max(0.5, s * 0.04);
     }
     return null;
+  }
+  // a step sideways or forward from where you stand, by a drag of the ground; leaves the phone's position behind
+  function walkMove(fwd, side) {
+    const W = WALK; if (!fwd && !side) return;
+    const yr = W.yaw * Math.PI / 180;
+    W.x += Math.sin(yr) * fwd + Math.cos(yr) * side; W.z += -Math.cos(yr) * fwd + Math.sin(yr) * side;
+    W.go = null; if (W.gps) { W.gps = false; syncChip(); }
   }
   function walkTo(x, z) {
     const W = WALK, d = Math.hypot(x - W.x, z - W.z); if (d < 0.5) return;
@@ -2441,7 +2527,20 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       head += WALK.off;
     }
     WALK.devYaw = wrap180(head); WALK.devPitch = pitch; WALK.devT = performance.now();
-    if (!WALK.compassOk) { WALK.compassOk = true; if (WALK.landed && !WALK.go && !WALK.keys.size) WALK.compass = true; syncChip(); }
+    if (!WALK.compassOk) { WALK.compassOk = true; syncChip(); }
+  }
+  // the compass is a choice: you land looking at the street, and the phone takes over only when asked
+  const compassHere = touchFirst && !!window.DeviceOrientationEvent;
+  function setCompass(on) {
+    const W = WALK;
+    if (!on) { W.compass = false; syncChip(); return; }
+    W.compass = true; syncChip();
+    const go = () => { listenOrient(true); clearTimeout(W.compassT); W.compassT = setTimeout(() => { if (WALK.on && WALK.compass && !WALK.compassOk) { WALK.compass = false; syncChip(); showToast(S.walkNoCompass); } }, 2500); };
+    // iOS asks for leave, and only in direct answer to a tap, so the question comes straight from the button
+    try {
+      if (typeof DeviceOrientationEvent.requestPermission === "function") DeviceOrientationEvent.requestPermission().then((r) => { if (r === "granted" && WALK.on) go(); else { WALK.compass = false; syncChip(); showToast(S.walkNoCompass); } }).catch(() => { WALK.compass = false; syncChip(); showToast(S.walkNoCompass); });
+      else go();
+    } catch (err) { W.compass = false; syncChip(); }
   }
   function listenOrient(on) {
     if (on === WALK.listening) return; WALK.listening = on;
@@ -2469,41 +2568,63 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (!WALK.lastFix) return;
     WALK.gps = true; WALK.go = null; WALK.keys.clear(); WALK.wx = WALK.lastFix.x; WALK.wz = WALK.lastFix.z;
     const d = Math.hypot(WALK.wx - WALK.x, WALK.wz - WALK.z); if (d > 2) WALK.go = { t0: performance.now() / 1000, dur: clamp(d / 9, 0.5, 4.5), x0: WALK.x, z0: WALK.z, x1: WALK.wx, z1: WALK.wz };
-    if (WALK.compassOk) WALK.compass = true;
     syncChip();
   }
 
   // down to the ground: where the phone says you are, or the start in the centre
-  function land(gps, msg) {
+  function land(gps, msg, spot) {
     const W = WALK; clearTimeout(W.timer);
-    W.landed = true; W.gps = gps;
+    W.landed = true; W.gps = gps; fingers.clear(); pinch = null;
     if (gps) { W.x = W.lastFix.x; W.z = W.lastFix.z; }
+    else if (spot) { W.x = spot.x; W.z = spot.z; W.startYaw = spot.yaw; }
     else { const s = WALK_START[city.M.id] || [0, 0, 0]; W.x = s[0]; W.z = -s[1]; W.startYaw = s[2]; }
     const P = { x: W.x, z: W.z }; keepOut(P); W.x = W.wx = P.x; W.z = W.wz = P.z;
     // look the way the view already faced from above, or the start's way, or where the phone points
     const fx = controls.target.x - camera.position.x, fz = controls.target.z - camera.position.z;
-    W.yaw = gps ? Math.atan2(fx, -fz) * 180 / Math.PI : W.startYaw; W.pitch = -3;
-    W.compass = W.compassOk; if (W.compass) { W.yaw = W.devYaw; W.pitch = clamp(W.devPitch, -70, 60); }
-    W.eye = groundY(W.x, W.z) + EYE;
+    W.yaw = gps ? Math.atan2(fx, -fz) * 180 / Math.PI : W.startYaw; W.pitch = spot && spot.pitch != null ? spot.pitch : -3;
+    if (W.compass && W.compassOk && !spot) { W.yaw = W.devYaw; W.pitch = clamp(W.devPitch, -70, 60); } else W.compass = false;
+    W.eye = groundY(W.x, W.z) + EYE; W.fov = walkFov();
     W.fly = { t0: performance.now() / 1000, dur: reduce ? 0.01 : 2.6, fromP: camera.position.clone(), fromT: controls.target.clone(), fromFov: camera.fov, fog0: camera.position.distanceTo(controls.target) };
     W.flyE = 0; controls.enabled = false; camMode = "walk"; city.hoodLines.visible = false;
     syncChip(); invalidate();
-    showToast(msg ? S[msg] : S.walkHi(W.compassOk));
+    showToast(msg === "walkDropped" ? S.walkDropped(touchFirst) : msg ? S[msg] : S.walkHi(compassHere));
   }
-  function startWalk() {
-    if (!city || WALK.on) return;
+  // what every walk starts with, from the button or a double tap
+  function beginWalk() {
     const W = WALK;
-    Object.assign(W, { on: true, landed: false, gps: false, lastFix: null, go: null, fly: null, off: null, devAbs: false, compassOk: false, compass: false, devT: -1e9 }); W.keys.clear();
+    Object.assign(W, { on: true, landed: false, gps: false, lastFix: null, go: null, fly: null, off: null, devAbs: false, compassOk: false, compass: false, devT: -1e9 }); W.keys.clear(); clearTimeout(W.compassT);
     document.body.classList.add("walking"); $("walk-btn").setAttribute("aria-pressed", "true");
     hideIntro(); select(-1); hideCaption(); capQueue = []; $("menu").hidden = true; $("menu-btn").setAttribute("aria-expanded", "false");
     W.follow0 = follow; follow = false; $("follow").setAttribute("aria-pressed", "false"); if (camMode === "follow") { camMode = "free"; controls.update(); }
+    store.set("aarringe-walk-hint", "seen");
+  }
+  // a double tap on the map: down on the ground there, or in front of a building, looking at it; no position or compass needed
+  function dropAt(cx, cy) {
+    if (!city || loadingNow) return false;
+    const g = pick(cx, cy); let spot = null;
+    if (g >= 0) {
+      const c = city, bx = c.gX[g], bz = c.gZ[g]; let dx = camera.position.x - bx, dz = camera.position.z - bz; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
+      const P = { x: bx, z: bz };
+      for (let st = 1; st < 400 && insideStanding(P); st++) { P.x = bx + dx * st; P.z = bz + dz * st; }
+      const back = clamp(Math.max(c.gH[g] * 1.6, Math.sqrt(c.gArea[g]) * 0.9), 12, 70);   // the whole front in view
+      P.x += dx * back; P.z += dz * back;
+      for (let st = 0; st < 60 && insideStanding(P); st++) { P.x += dx * 2; P.z += dz * 2; }   // not inside the house across the street
+      spot = { x: P.x, z: P.z, yaw: Math.atan2(-dx, dz) * 180 / Math.PI, pitch: clamp(Math.atan2(c.gH[g] * 0.45 - EYE, Math.hypot(P.x - bx, P.z - bz)) * 180 / Math.PI, -3, 25) };
+    } else {
+      const h = groundHit(cx, cy); if (!h) return false;
+      spot = { x: h.x, z: h.z, yaw: Math.atan2(h.x - camera.position.x, -(h.z - camera.position.z)) * 180 / Math.PI };
+    }
+    if (!inTown(spot.x, spot.z)) return false;
+    select(-1);
+    if (WALK.on) { clearTimeout(WALK.timer); stopWatch(); } else beginWalk();
+    land(false, "walkDropped", spot);
+    return true;
+  }
+  function startWalk() {
+    if (!city || WALK.on) return;
+    const W = WALK; beginWalk();
     // today's town around you; play from there to see it grow
     playing = false; rewinding = false; if (t < TOTAL) jumpTo(TOTAL); syncPlay();
-    // the phone's motion and compass: iOS asks for leave, and only in direct answer to a tap, so this comes first
-    try {
-      if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") DeviceOrientationEvent.requestPermission().then((r) => { if (r === "granted" && WALK.on) listenOrient(true); }).catch(() => {});
-      else listenOrient(true);
-    } catch (err) { /* no motion sensors */ }
     if (navigator.geolocation) {
       W.watch = navigator.geolocation.watchPosition(onFix, onFixErr, { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 });
       W.timer = setTimeout(() => { if (WALK.on && !WALK.landed) land(false, "walkNoPos"); }, 12000);
@@ -2514,7 +2635,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   function stopWalk(fly) {
     const W = WALK; if (!W.on) return;
     const wasOnStreet = camMode === "walk";
-    W.on = false; W.landed = false; clearTimeout(W.timer); stopWatch(); listenOrient(false); W.keys.clear(); W.go = null; W.fly = null;
+    W.on = false; W.landed = false; clearTimeout(W.timer); stopWatch(); listenOrient(false); W.keys.clear(); W.go = null; W.fly = null; fingers.clear(); pinch = null; clearTimeout(W.compassT);
     document.body.classList.remove("walking"); $("walk-btn").setAttribute("aria-pressed", "false");
     controls.enabled = true; if (city) city.hoodLines.visible = hoodsOn;
     follow = W.follow0; $("follow").setAttribute("aria-pressed", String(follow));
@@ -2559,11 +2680,13 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       const F = W.fly, u = clamp((now / 1000 - F.t0) / F.dur, 0, 1), eh = ease3(Math.min(1, u / 0.82)), ev = ease3(u);
       camera.position.set(F.fromP.x + (W.pose.x - F.fromP.x) * eh, F.fromP.y + (W.pose.y - F.fromP.y) * ev, F.fromP.z + (W.pose.z - F.fromP.z) * eh);
       controls.target.lerpVectors(F.fromT, W.look, ev); camera.lookAt(controls.target);
-      setFov(F.fromFov + (walkFov() - F.fromFov) * ev); W.flyE = ev;
+      setFov(F.fromFov + (W.fov - F.fromFov) * ev); W.flyE = ev;
       if (u >= 1) W.fly = null;
       return true;
     }
-    if (camera.position.distanceToSquared(W.pose) < 1e-6 && controls.target.distanceToSquared(W.look) < 1e-6) return false;   // under a millimetre: no new frame, to spare the battery
+    let zoomed = false;
+    if (Math.abs(camera.fov - W.fov) > 0.01) { setFov(camera.fov + (W.fov - camera.fov) * (1 - Math.exp(-dt / 0.07))); zoomed = true; }   // the zoom glides
+    if (!zoomed && camera.position.distanceToSquared(W.pose) < 1e-6 && controls.target.distanceToSquared(W.look) < 1e-6) return false;   // under a millimetre: no new frame, to spare the battery
     camera.position.copy(W.pose); controls.target.copy(W.look); camera.lookAt(controls.target);
     return true;
   }
@@ -2577,14 +2700,14 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (!W.landed) { text = S.walkFinding; dot = "wait"; }
     else if (W.gps) { const m = Math.max(1, Math.round(W.acc)); text = W.acc > 40 ? S.walkWeak(m) : S.walkHere(m); dot = "live"; }
     else text = S.walkFree(touchFirst);
-    let act = null;
-    if (W.landed && !W.gps && W.lastFix) act = ["walkToMe", resumeGps];
-    else if (W.landed && W.compassOk && !W.compass) act = ["walkCompass", () => { WALK.compass = true; syncChip(); }];
+    const act = W.landed && !W.gps && W.lastFix ? ["walkToMe", resumeGps] : null;
     $("walk-s").textContent = text; $("walk-dot").className = "dot " + dot;
     a.hidden = !act; if (act) { a.textContent = S[act[0]]; a.onclick = act[1]; }
+    const cb = $("walk-c"); cb.hidden = !(W.landed && compassHere); cb.setAttribute("aria-pressed", String(W.compass));
   }
   $("walk-btn").onclick = () => { if (WALK.on) stopWalk(true); else startWalk(); };
   $("walk-x").onclick = () => stopWalk(true);
+  $("walk-c").onclick = () => setCompass(!WALK.compass);
 
   // ---------------- layout ----------------
   let planTimer = 0;
@@ -2618,9 +2741,13 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     rad = Math.pow(2, Math.ceil(Math.log2(rad) * 4) / 4);   // size in quarter-octave steps instead of every frame
     const texel = 2 * rad / sun.shadow.mapSize.x, su = _b.dot(SR), sv = _b.dot(SV);
     _b.addScaledVector(SR, Math.round(su / texel) * texel - su).addScaledVector(SV, Math.round(sv / texel) * texel - sv);
-    const sc = sun.shadow.camera;
-    sc.left = -rad; sc.right = rad; sc.top = rad; sc.bottom = -rad; sc.near = 10; sc.far = 40000; sc.updateProjectionMatrix();
-    sun.target.position.copy(_b); sun.position.copy(_b).addScaledVector(SUN, 15000); sun.target.updateMatrixWorld();
+    // The light's depth range is kept just deep enough for everything in the box, and the bias is set in metres from it. With a
+    // fixed 40 km range the old bias came to some 12 m, so anything lower than that cast no shadow and only the tops of the
+    // tallest buildings did, as stray bands away from their walls.
+    const sc = sun.shadow.camera, D = 2 * rad + 800;
+    sc.left = -rad; sc.right = rad; sc.top = rad; sc.bottom = -rad; sc.near = 1; sc.far = 2 * D; sc.updateProjectionMatrix();
+    sun.target.position.copy(_b); sun.position.copy(_b).addScaledVector(SUN, D); sun.target.updateMatrixWorld();
+    sun.shadow.bias = -Math.max(0.12, 0.6 * texel) / (sc.far - sc.near); sun.shadow.normalBias = Math.max(0.35, 0.9 * texel);
     // the haze: on the street it hangs a few hundred metres out and hides the edge of the board; going down and up it eases between the two
     let fd = realDist;
     if (camMode === "walk") fd = WALK.fly ? WALK.fly.fog0 + (260 - WALK.fly.fog0) * WALK.flyE : 260;
@@ -2791,7 +2918,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   applyStrings(); drawKey(); resize();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
   requestAnimationFrame(frame);
-  if (still) window.__dbg = { city: () => city, pose: directorPose, camera, renderer, scene, walk: () => WALK, camMode: () => camMode, t: () => t,   // test hooks, only with ?still
+  if (still) window.__dbg = { city: () => city, pose: directorPose, camera, renderer, scene, walk: () => WALK, camMode: () => camMode, t: () => t, dropAt, groundHit, pick,   // test hooks, only with ?still
     shadows: (on) => { sun.castShadow = on; for (const m of city.treeMeshes) m.castShadow = on; needsRender = true; },
     hide: (what, on) => { const c = city; if (what === "trees") c.treesOn = !on; if (what === "buildings") c.mesh.visible = !on; needsRender = true; },
     look: (x, y, z, dist, az, pol) => {   // a fixed view of the finished city, for close-up checks
