@@ -244,39 +244,18 @@ body.playing .live { min-height: 17px; }
 body.walking #follow { display: none; }
 body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 @media (prefers-reduced-motion: reduce) { .walkchip { transition: none; } .walkchip .dot { animation: none; } }
-/* før og nå: the screen split in two by a line you drag; the year on the timeline to the left, today to the right */
-.btn.cmp { display: inline-flex; align-items: center; gap: 7px; }
-.btn.cmp svg { width: 15px; height: 15px; flex: none; }
-.btn.cmp[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.split { position: fixed; z-index: 3; top: 0; bottom: 0; left: 0; width: 0; transform: translateX(var(--sx, 50vw)); pointer-events: none; opacity: 0; transition: opacity 0.25s; }
-.split.on { opacity: 1; }
-.split-line { position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: var(--paper); box-shadow: 0 0 0 1px rgba(42, 34, 29, 0.32); }
-.split-hit { position: absolute; top: 0; bottom: 0; left: -14px; width: 28px; pointer-events: auto; cursor: ew-resize; touch-action: none; }
-.split-knob { position: absolute; left: var(--kx, 0px); top: var(--ky, 50vh); transform: translate(-50%, -50%); pointer-events: auto; touch-action: none; cursor: ew-resize;
-  height: 40px; padding: 0; border: 0; background: var(--paper); box-shadow: var(--lift), 0 3px 12px rgba(42, 34, 29, 0.16); display: flex; align-items: stretch;
-  font-family: var(--serif); font-weight: 800; font-size: 17px; font-variant-numeric: lining-nums tabular-nums; color: var(--ink); -webkit-user-select: none; user-select: none; }
-.split-knob span { display: grid; place-items: center; width: 56px; }
-.split-knob i { font-style: normal; width: 26px; display: grid; place-items: center; border-left: 1px solid var(--hair); border-right: 1px solid var(--hair); color: var(--ink-2); }
-.split-knob i svg { width: 14px; height: 14px; }
-.split-knob:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-body.dragsplit, body.dragsplit * { cursor: ew-resize !important; }
-@media (prefers-reduced-motion: reduce) { .split { transition: none; } }
 /* the card's actions: see the house from the street, share a link to it */
 .card-acts { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 .cbtn { height: 34px; padding: 0 12px; border: 1px solid var(--ink); background: none; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; }
 .cbtn svg { width: 13px; height: 13px; flex: none; }
 .cbtn:hover { background: var(--paper-2); }
-/* narrower screens: the walk and før og nå buttons keep only their icons, so the top row fits beside the plate */
-@media (min-width: 701px) and (max-width: 1120px) { .btn.walk, .btn.cmp { width: 38px; padding: 0; justify-content: center; } .btn.walk span, .btn.cmp span { display: none; } }
+/* tablets: the walk button keeps only its arrow, so the top row fits beside the plate */
+@media (min-width: 701px) and (max-width: 900px) { .btn.walk { width: 38px; padding: 0; justify-content: center; } .btn.walk span { display: none; } }
 
 @media (max-width: 700px) {
   .plate { width: 196px; padding: 9px 11px 10px; }
-  .btn.walk, .btn.cmp { width: 38px; padding: 0; justify-content: center; }
-  .btn.walk span, .btn.cmp span { display: none; }
-  .tools { gap: 6px; }
-  .split-knob { height: 36px; font-size: 15.5px; }
-  .split-knob span { width: 48px; }
-  .split-knob i { width: 22px; }
+  .btn.walk { width: 38px; padding: 0; justify-content: center; }
+  .btn.walk span { display: none; }
   .card-acts { grid-column: 1 / -1; margin-top: 7px; }
   .cbtn { height: 32px; }
   .walkchip { top: calc(env(safe-area-inset-top, 0px) + 66px); bottom: auto; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); max-width: none; }
@@ -344,7 +323,6 @@ body.dragsplit, body.dragsplit * { cursor: ew-resize !important; }
 
 <div id="stage" role="img" aria-label=""></div>
 <div class="labels" id="labels" aria-hidden="true"></div>
-<div class="split" id="split" hidden><div class="split-line"></div><div class="split-hit" id="split-hit"></div><button class="split-knob" id="split-knob"><span id="split-a"></span><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4 2 8l4 4M10 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></i><span id="split-b">2026</span></button></div>
 
 <div class="top">
   <section class="plate" aria-label="">
@@ -364,7 +342,6 @@ body.dragsplit, body.dragsplit * { cursor: ew-resize !important; }
       <input id="q" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="qr">
       <ul class="results" id="qr" role="listbox" hidden></ul>
     </div>
-    <button class="btn cmp" id="cmp-btn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 2.75h12.5v10.5H1.75z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75h6.25v10.5H8z" fill="currentColor"/></svg><span id="cmp-l"></span></button>
     <button class="btn walk" id="walk-btn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14.4 1.6 1.6 7.2l5.6 1.6 1.6 5.6z" fill="currentColor"/></svg><span id="walk-l"></span></button>
     <button class="btn" id="src-btn">Kilder</button>
     <button class="btn" id="menu-btn" aria-expanded="false" aria-controls="menu"></button>
@@ -437,10 +414,9 @@ body.dragsplit, body.dragsplit * { cursor: ew-resize !important; }
 <p><b>Funnet for hånd.</b> For de største og viktigste bygningene uten år er årstallet søkt opp ett for ett, og kortet sier hvor det kommer fra. Det gjelder blant annet Ekeberg skole og flerbrukshallen, Gjøklep ungdomsskole, sykehjemmet og omsorgsboligene på Rove, Gausetangen og Gaupås barnehager, Borgen forsamlingslokale, «Casino» fra den tyske Grefsrud leir, Telebygget, Filadelfiakirken og Botne menighets bedehus, Fibo-fabrikken på Ekelund, høydebassenget ved Ekebergveien, Esso-stasjonen og Glassmagasinet i Langgaten, borettslagene i Barlinveien, på Bilet og i Hagemannsskogen, Plantasjen, kornsiloen, renseanlegget, og hovedbygningen og Gamle Gausen på Nedre Gausen. Kildene er Holmestrand kommune (blant annet <a href="https://holmestrand.kommune.no/_f/p1/i46dcabfa-78d6-4f21-9e54-bdaba9fb16a9/kpa-vedlegg-6-kulturminner-og-miljoer-kst-190624.pdf" target="_blank" rel="noopener">kulturminneplanen</a>), Wikipedia, Store norske leksikon, eiendomsdata fra Hjemla for den enkelte adressen, salgsannonser på Finn, utbyggere og entreprenører, og lokalavisene i <a href="https://www.nb.no/search" target="_blank" rel="noopener">Nasjonalbibliotekets nettbibliotek</a>, mest Jarlsberg Avis, og Statsbyggs landsverneplan for Nedre Gausen. 53 bygninger har år på denne måten. Der kildene var uenige, eller ikke sa sikkert hvilket bygg de gjaldt, står bygningen fortsatt uten år.</p>
 <p><b>Tips fra lesere.</b> Modellen ble delt i Facebook-gruppen «Holmestrand før og nå» i oktober 2026, og lesere har sendt tips om enkelte hus. Der et årstall eller et navn bare bygger på et tips, sier kortet det. Tips som kunne sjekkes, er sjekket. Nordre Klev 18 er delt i to etter et tips: den søndre delen fra rundt 1750 og den nordre, som ble bygget på i andre halvdel av 1800-tallet. Skillet følger knekken i omrisset. Gausetangen skole sto før som bygget i 2024, men det var året skolen ble bygget om til leiligheter. Den står nå uten år, fordi kildene er uenige om når skolen ble reist.</p>
 <p><b>Gå rundt.</b> «Gå rundt» setter deg ned på bakken der du står, i øyehøyde. Posisjonen til telefonen flytter deg når du går. Slår du på Kompass, snur bildet seg dit du peker telefonen. Uten posisjon, eller utenfor Holmestrand, starter turen i sentrum. Du kan også dobbelttrykke hvor som helst på kartet for å gå ned der, eller på et hus for å stå foran det. På bakken drar du for å se deg rundt og trykker på bakken for å gå dit. Med to fingre kniper du for å zoome og drar for å flytte deg. På en datamaskin zoomer du med rullehjulet og går med piltastene eller høyre museknapp. Trykk på play for å se byen vokse frem rundt deg. Posisjonen brukes bare i nettleseren din og sendes ikke noe sted.</p>
-<p><b>Se fra gaten.</b> Kortet for et hus har knappen «Se fra gaten». Den setter deg ned der du ser hele fasaden, helst midt i en gate foran huset, og ikke bak et annet hus. Gatene er veiflatene i OpenStreetMap. Står du for nær, kommer du deg lenger ut med to fingre eller piltastene.</p>
-<p><b>Før og nå.</b> «Før og nå» deler skjermen i to med en strek du kan dra. Til venstre står byen slik den var i året på tidslinjen, til høyre slik den er i dag. Den åpner på 1950, før boligfeltene på platået kom, og du velger et annet år på tidslinjen. Begge sidene er tegnet hver for seg, med egne skygger. Det virker også nede på gaten.</p>
-<p><b>Lenker.</b> «Del» på kortet lager en lenke som åpner modellen på huset, i året du ser på, og med før og nå hvis det er på. Lenken finner huset etter navnet og stedet, så den virker også for et uthus uten adresse.</p>
-<p><b>Vinduer.</b> Når du kommer nær, får boliger, forretninger, kontorer og skoler vinduer i hver etasje. De er ikke de virkelige vinduene. De viser hvor mange etasjer huset har og hvor stort det er, og forsvinner når du zoomer ut igjen.</p>
+<p><b>Se fra gaten.</b> Kortet for et hus har knappen «Se fra gaten». Den setter deg ned der du ser fasaden rett forfra, helst midt i en gate foran huset, og ikke bak et annet hus eller et tre. På en telefon står du lenger unna, fordi bildet er smalere. Gatene er veiflatene i OpenStreetMap. Står du for nær, kommer du deg lenger ut med to fingre eller piltastene.</p>
+<p><b>Lenker.</b> «Del» på kortet lager en lenke som åpner modellen på huset, i året du ser på. Lenken finner huset etter navnet og stedet, så den virker også for et uthus uten adresse.</p>
+<p><b>Vinduer.</b> Når du kommer nær, får boliger, forretninger, kontorer og skoler vinduer i hver etasje. De er ikke de virkelige vinduene. De viser hvor mange etasjer huset har og hvor stort det er, og forsvinner når du zoomer ut igjen. Vinduene er fordelt jevnt på hver vegg mellom to hjørner, så ingen havner på et hjørne. Der dataene har antall etasjer, får huset like mange rader. Boliger har hvite karmer med krysspost.</p>
 <p><b>Aluminiumsverket.</b> Verket i sentrum er ett stort bygg i Matrikkelen. Det ble etablert i 1919 og er bygget ut i mange omganger siden, blant annet med et nytt valseverk under krigen og en stor utbygging 1945–50, men ingen kilde sier hvilken hall som er fra når. Derfor reiser hele dagens anlegg seg i 1919, og kortet sier det. De mindre byggene rundt det og hallene på Vesthøy, der verket bygget lakkeringsanlegg og trådvalseverk fra 1960, står fortsatt uten år. Kilder: <a href="https://snl.no/Speira_Holmestrand" target="_blank" rel="noopener">Store norske leksikon</a> og <a href="https://vestfoldmuseene.no/aluminiummuseet/1945-1967" target="_blank" rel="noopener">Aluminiummuseet</a>.</p>
 <p><b>Det nye rådhuset.</b> Rådhuset ved stasjonen åpnet i oktober 2026 og er for nytt for både OpenStreetMap og laserdataene. Formen er tegnet etter arkitektenes illustrasjoner (Spir Arkitekter for Bane NOR Eiendom): to murfløyer i fire etasjer ut fra fjellet, et parti langs fjellet mellom dem og Jernbanesmia foran gårdsrommet, der den søndre fløyen trapper ned til tre etasjer mot plassen. Størrelsen følger arealet, 5&nbsp;950&nbsp;m² på fire etasjer, og plasseringen Matrikkelens punkt for bygningen. Omrisset og høydene er altså omtrentlige. Kilder: <a href="https://holmestrand.kommune.no/nytt-radhus/" target="_blank" rel="noopener">Holmestrand kommune</a>, <a href="https://www.veidekke.com/investor-relations/company-disclosures/veidekke-new-city-hall-in-holmestrand/" target="_blank" rel="noopener">Veidekke</a> og <a href="https://byggfaktanyheter.no/nye-holmestrand-radhus-med-hoye-miljoambisjoner/" target="_blank" rel="noopener">Byggfakta</a>.</p>
 <p><b>Stasjonen i fjellet.</b> Stasjonen ligger 150 meter inne i fjellet og åpnet 28. november 2016. Portalbyggene ved nordre og søndre inngang er tegnet etter overflatemodellen og arkitektenes bilder (<a href="https://gottliebpaludan.com/en/projects/holmestrand-station" target="_blank" rel="noopener">Gottlieb Paludan Architects</a>): et skrått betongtak som stiger mot den åpne portalen, med inngangen trukket inn under det. Stasjonshallen rundt de to plattformene og gangtunnelene fra inngangene, også den fra heisen opp til Rove, er tegnet stiplet fra åpningen, etter OpenStreetMap. Den søndre inngangen har året fra åpningen, heishuset på Rove står uten år. Kilder: <a href="https://en.wikipedia.org/wiki/Holmestrand_Station" target="_blank" rel="noopener">Wikipedia</a> og <a href="https://betong.net/wp-content/uploads/Vinner-2017-Holmestrand-st._Jury-begrunnelse.pdf" target="_blank" rel="noopener">juryen for Betongtavlen 2017</a>.</p>
@@ -578,13 +554,11 @@ Object.assign(STRINGS.no, {
   walkDropped: (touch) => touch ? "Dra for å se deg rundt. Knip for å zoome, og dra med to fingre for å flytte deg." : "Dra for å se deg rundt og rull for å zoome. Gå med piltastene, eller dra med høyre museknapp.",
   walkHint: (touch) => touch ? "Dobbelttrykk hvor som helst på kartet for å gå ned på bakken der." : "Dobbeltklikk hvor som helst på kartet for å gå ned på bakken der.",
 });
-// før og nå, links and the card's actions
+// links and the card's actions
 Object.assign(STRINGS.no, {
-  cmp: "Før og nå", cmpLabel: "Sammenlign et år med i dag", cmpKnob: "Flytt skillet mellom før og nå",
-  cmpHint: "Dra i streken for å sammenligne. Til venstre står byen slik den var i året på tidslinjen, til høyre slik den er i dag.",
   street: "Se fra gaten", streetLabel: "Stå på gaten foran huset", share: "Del", shareLabel: "Del en lenke til huset",
   linkCopied: "Lenken er kopiert.", linkFail: "Kunne ikke kopiere lenken.", linkMissing: "Fant ikke huset fra lenken.",
-  news: "Nytt: Før og nå viser et år og i dag side om side. Fra kortet til et hus kan du se det fra gaten eller dele en lenke til det.", newsTry: "Prøv før og nå",
+  news: "Nytt: Trykk på et hus, så kan du se det fra gaten eller dele en lenke til det.",
 });
 // where a walk starts without a position in town: the square north of the 1964 town hall, looking towards the church (metres east, north; heading in degrees)
 const WALK_START = { hol: [91, 50, -56] };
@@ -709,11 +683,11 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     vVis = (und ? 1.0 : step(0.0, age)) * (1.0 - step(0.999, gone));
     float topV = step(0.01, transformed.y);
     transformed.y = max(transformed.y * g, topV * (und ? 0.6 : 0.0)) + aBase;`;
-  const VDECL = `attribute float aT; attribute float aYear; attribute float aCat; attribute float aGroup; attribute float aBase; attribute float aMat; attribute float aEnd; attribute float aS; varying float vS;
+  const VDECL = `attribute float aT; attribute float aYear; attribute float aCat; attribute float aGroup; attribute float aBase; attribute float aMat; attribute float aEnd; attribute vec3 aW; varying vec3 vW;
     uniform vec3 uWallC[7]; uniform vec3 uRoofC[6]; varying vec3 vWallC; varying vec3 vRoofC; varying vec3 vWPos;
     uniform float uT; uniform float uNow; uniform float uMode; uniform float uUndFull; uniform float uHover; uniform float uSel; uniform float uMarkOn;
     uniform vec3 uRamp[7]; uniform float uRampY[7]; uniform vec3 uCats[6]; uniform vec3 uWhite; uniform vec3 uFoam; uniform vec3 uUnd; uniform vec3 uPre;
-    varying float vVis; varying vec3 vCol; varying float vFlash; varying float vY; varying float vTop; varying float vHi; varying float vLY; varying float vCat;
+    varying float vVis; varying vec3 vCol; varying float vFlash; varying float vTop; varying float vHi; varying float vLY; varying float vCat;
     vec3 ramp(float y) { vec3 c = uRamp[0]; for (int i = 0; i < 6; i++) { float a = uRampY[i], b = uRampY[i + 1]; if (y > a) c = mix(uRamp[i], uRamp[i + 1], clamp((y - a) / (b - a), 0.0, 1.0)); } return c; }
     vec3 catc(float c) { vec3 r = uCats[5]; for (int i = 0; i < 6; i++) { if (abs(c - float(i)) < 0.5) r = uCats[i]; } return r; }
     vec3 wallc(float c) { vec3 r = uWallC[0]; for (int i = 1; i < 7; i++) { if (abs(c - float(i)) < 0.5) r = uWallC[i]; } return r; }
@@ -723,7 +697,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\n" + VDECL)
       .replace("#include <begin_vertex>", "#include <begin_vertex>\n" + GROW + `
-        vTop = topV; vY = transformed.y; vLY = transformed.y - aBase; vCat = aCat; vS = aS;
+        vTop = topV; vLY = transformed.y - aBase; vCat = aCat; vW = vec3(aW.xy, aW.z * g);   // the wall's height grows with the building
         bool pre = aYear > 0.5 && aYear < 1.5;
         float fresh = pre ? 0.0 : 1.0 - smoothstep(0.0, 30.0, uNow - aYear);
         float young = pre ? 0.0 : 1.0 - smoothstep(0.0, 10.0, uNow - aYear);
@@ -734,27 +708,46 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
         vHi = abs(aGroup - uSel) < 0.5 ? 2.0 : (abs(aGroup - uHover) < 0.5 ? 1.0 : 0.0);
         vWallC = wallc(mod(aMat, 8.0)); vRoofC = roofc(floor(aMat / 8.0)); vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
     sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
-        uniform vec3 uBuild; uniform vec3 uSelC; uniform float uMode; varying float vVis; varying vec3 vCol; varying float vFlash; varying float vY; varying float vTop; varying float vHi;
-        varying vec3 vWallC; varying vec3 vRoofC; varying vec3 vWPos; varying float vLY; varying float vCat; varying float vS;`)
+        uniform vec3 uBuild; uniform vec3 uSelC; uniform float uMode; varying float vVis; varying vec3 vCol; varying float vFlash; varying float vTop; varying float vHi;
+        varying vec3 vWallC; varying vec3 vRoofC; varying vec3 vWPos; varying float vLY; varying float vCat; varying vec3 vW;
+        // the integral from 0 to x of a pulse train of period 1 that is on from a to b in each period
+        float pulseI(float x, float a, float b) { return floor(x) * (b - a) + clamp(fract(x), a, b) - a; }
+        // how much of a pixel w wide around x is covered by the pulses, counting only periods 0 to n (a box filter, so no pattern
+        // finer than a pixel can shimmer); when a period is under a few pixels wide it eases to the plain average
+        float boxP(float x, float w, float a, float b, float n) {
+          float x0 = clamp(x - 0.5 * w, 0.0, n), x1 = clamp(x + 0.5 * w, 0.0, n);
+          float c = (pulseI(x1, a, b) - pulseI(x0, a, b)) / max(w, 1e-4);
+          return mix((b - a) * step(0.0, x) * step(x, n), c, smoothstep(1.6, 3.0, 1.0 / max(w, 1e-4)));
+        }`)
       .replace("vec4 diffuseColor = vec4( diffuse, opacity );", `if (vVis < 0.5) discard;
         vec3 cc = mix(vCol, uBuild, vFlash);
         if (uMode > 2.5) { vec3 wn = normalize(cross(dFdx(vWPos), dFdy(vWPos))); cc = abs(wn.y) > 0.45 ? vRoofC : vWallC; }   // roofs and walls by what they are made of
         if (vHi > 1.5) cc = uSelC; else if (vHi > 0.5) cc = mix(cc, uSelC, 0.4);
-        // windows: rows of panes on the walls of homes, shops, offices and schools, one storey above the other. They are drawn only
-        // where a pane is several pixels across, so the town seen from afar keeps its clean blocks. Along the wall the panes follow aS,
-        // the distance round the outline, so they run on round the corners; up the wall vTop (0 at the foot, 1 at the eaves) and the
-        // height above the ground give the wall's height, so the top storey keeps clear of the eaves. Roofs and gables have vTop 1.
+        // Windows on the walls of homes, shops, offices and schools. Each run of wall between two corners gets as many windows as fit
+        // at an even spacing, centred, so none sits on a corner. Up the wall there is a row per storey: as many as the register gives
+        // where it has the floors (the storey height then shrinks to fit the wall), else as many as fit under the eaves. Homes get a
+        // white frame with a cross bar; the glass catches a little sky at the top. Everything is box filtered over the pixel, and the
+        // windows fade out once a pane is under a few pixels tall, so the town seen from afar keeps its clean blocks.
         // The derivatives are taken outside any branch, where they are defined on every GPU.
-        float fh = vCat < 0.5 ? 2.9 : 3.5, sp = vCat < 0.5 ? 3.1 : 3.3;
-        float ws = vS / sp, wf = vLY / fh, fs = fwidth(ws), ff = fwidth(wf);
-        float onWall = step(0.002, vTop) * step(vTop, 0.995) * step(vCat, 3.5);
-        if (onWall > 0.5) {
-          float H = vLY / vTop, keep = 1.0 - smoothstep(0.07, 0.16, max(fs, ff));
-          float room = step(floor(wf) * fh + 0.78 * fh, H - 0.45) * step(2.4, H);
-          float bx = fract(ws), by = fract(wf);
-          float wx = clamp(smoothstep(0.31 - fs, 0.31 + fs, bx) - smoothstep(0.69 - fs, 0.69 + fs, bx), 0.0, 1.0);
-          float wy = clamp(smoothstep(0.33 - ff, 0.33 + ff, by) - smoothstep(0.78 - ff, 0.78 + ff, by), 0.0, 1.0);
-          cc = mix(cc, cc * 0.36 + vec3(0.07, 0.08, 0.095), 0.88 * wx * wy * keep * room);
+        float dS = fwidth(vW.x), dY = fwidth(vLY);
+        if (vW.y > 0.5 && vCat < 3.5) {
+          float fl = floor(vW.y / 1000.0), L = vW.y - 1000.0 * fl, H = vW.z, home = step(vCat, 0.5);
+          float sp = mix(3.4, 3.0, home), pw = mix(1.5, 1.05, home), fh0 = mix(3.6, 2.9, home);
+          float b0 = mix(0.85, 0.9, home) / fh0, b1 = b0 + mix(1.75, 1.35, home) / fh0;
+          float fh = fl > 0.5 ? clamp((H - 0.4) / fl, 2.4, fh0) : fh0;
+          float nR = max(0.0, floor((H - 0.45) / fh - b1) + 1.0); if (fl > 0.5) nR = min(nR, fl);
+          float nC = L >= pw + 1.2 ? max(1.0, floor(L / sp + 0.25)) : 0.0, cell = L / max(nC, 1.0);
+          float u = vW.x / cell, du = 1.2 * dS / cell, v = vLY / fh, dv = 1.2 * dY / fh;
+          float a = 0.5 * pw / cell, tu = 0.09 / cell, tv = 0.09 / fh, mu = 0.035 / cell, mv = 0.03 / fh, bt = b0 + 0.68 * (b1 - b0);
+          float gx = boxP(u, du, 0.5 - a, 0.5 + a, nC), gy = boxP(v, dv, b0, b1, nR);
+          float ox = boxP(u, du, 0.5 - a - tu, 0.5 + a + tu, nC), oy = boxP(v, dv, b0 - tv, b1 + tv, nR);
+          float mx = boxP(u, du, 0.5 - mu, 0.5 + mu, nC), my = boxP(v, dv, bt - mv, bt + mv, nR);
+          float glass = gx * gy - home * (mx * gy + gx * my - mx * my), frame = ox * oy - glass;
+          float keep = smoothstep(2.2, 4.5, 1.35 / max(dY, 1e-4)), kt = smoothstep(0.5, 1.1, 0.09 / max(dY, 1e-4));
+          float py = clamp((fract(v) - b0) / (b1 - b0), 0.0, 1.0);
+          vec3 glassC = cc * 0.3 + vec3(0.05, 0.06, 0.075) + vec3(0.045, 0.05, 0.055) * py * py;
+          cc = mix(cc, mix(cc, vec3(0.95, 0.93, 0.88), 0.6), clamp(frame, 0.0, 1.0) * keep * kt);
+          cc = mix(cc, glassC, 0.92 * clamp(glass, 0.0, 1.0) * keep);
         }
         float ao = vTop > 0.999 ? 1.0 : mix(0.74, 1.0, smoothstep(0.0, 7.0, vLY));
         vec4 diffuseColor = vec4(cc * ao, opacity);`)
@@ -1059,55 +1052,77 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     }
     setProgress(0.05);
     // ---- building geometry ----
+    // Each wall is a row of quads, a bottom and a top vertex at every point of the outline. Where the outline turns a corner (more
+    // than 20 degrees) the vertices are doubled, so the wall between two corners is one run with its own aW: metres along the run,
+    // the run's length (plus 1000 for every floor the register gives), and the height of the wall. The windows are laid out on each
+    // run from these, so they keep clear of the corners. The roof has vertices of its own with no run, so it never gets windows.
     const P = D.P, R = D.R;
-    // each ring point is a bottom and a top vertex; the first point is repeated at the end, so aS (metres along the outline, for the
-    // windows) runs without a jump round the whole ring
-    const NV = (P + R) * 2;
-    const pos = new Float32Array(NV * 3), aT = new Float32Array(NV), aYear = new Uint16Array(NV), aCat = new Uint8Array(NV), aGroup = new Float32Array(NV), aBase = new Float32Array(NV), aMat = new Uint8Array(NV), aEnd = new Float32Array(NV), aS = new Float32Array(NV);
+    const NV = 5 * P;   // a run start and end at every corner, a closing pair per ring, and one roof vertex per point
+    const pos = new Float32Array(NV * 3), aT = new Float32Array(NV), aYear = new Uint16Array(NV), aCat = new Uint8Array(NV), aGroup = new Float32Array(NV), aBase = new Float32Array(NV), aMat = new Uint8Array(NV), aEnd = new Float32Array(NV), aW = new Float32Array(NV * 3);
     const idx = new Uint32Array(P * 6 + 3 * (P + 2 * R)); let ni = 0, vbase = 0;
+    let maxN = 3; for (let r = 0; r < R; r++) maxN = Math.max(maxN, D.ringLen[r]);
+    const CORNER = Math.cos(20 * Math.PI / 180), xs = new Float64Array(maxN), ys = new Float64Array(maxN), corner = new Uint8Array(maxN);
     const CH = 5000;
     for (let i0 = 0; i0 < N; i0 += CH) {
       const i1 = Math.min(N, i0 + CH);
       for (let i = i0; i < i1; i++) {
-        const g = D.group[i], h = D.hdm[i] / 10, t = gT[g], ct = D.cat[i], gid = g + 1;
+        const g = D.group[i], h = D.hdm[i] / 10, t = gT[g], ct = D.cat[i], gid = g + 1, fl = Math.min(D.floors[i], 60);
         const ay = D.flags[i] & FLAG_PRE1900 ? 1 : D.year[i];   // 1 marks "before 1900, year unknown"
         const hid = D.flags[i] & FLAG_HIDDEN, ni0 = ni, mc = D.mat ? D.mat.wall[i] + 8 * D.mat.roof[i] : 0;
-        const flat = [], holes = [], topOf = [];
+        const one = (X, y, Y, s) => {
+          const v = vbase;
+          pos[3 * v] = X; pos[3 * v + 1] = y; pos[3 * v + 2] = -Y; aW[3 * v] = s; aW[3 * v + 2] = h;
+          aT[v] = t; aYear[v] = ay; aCat[v] = ct; aGroup[v] = gid; aBase[v] = fBase[i]; aMat[v] = mc; aEnd[v] = gEndT[g];
+          vbase++; return v;
+        };
+        const pair = (X, Y, s) => { const v = one(X, 0, Y, s); one(X, h, Y, s); return v; };   // the bottom vertex; the top is the next
+        const flat = [], holes = [];
         const rb = ringOff[i], nr = D.nrings[i];
         for (let r = rb; r < rb + nr; r++) {
-          const n = D.ringLen[r]; let x = D.ringStart[2 * r], y = D.ringStart[2 * r + 1], sAlong = 0, px0 = 0, py0 = 0;
-          const d0 = 2 * (ptOff[r] - r), b0 = vbase;
+          const n = D.ringLen[r]; let x = D.ringStart[2 * r], y = D.ringStart[2 * r + 1];
+          const d0 = 2 * (ptOff[r] - r);
           if (r > rb) holes.push(flat.length / 2);
-          for (let k = 0; k <= n; k++) {
-            if (k > 0 && k < n) { x += D.delta[d0 + 2 * (k - 1)]; y += D.delta[d0 + 2 * (k - 1) + 1]; }
-            if (k === n) { x = D.ringStart[2 * r]; y = D.ringStart[2 * r + 1]; }   // the closing copy of the first point
-            const X = x / 10, Y = y / 10, v = vbase * 3;
-            if (k > 0) sAlong += Math.hypot(X - px0, Y - py0); px0 = X; py0 = Y;
-            pos[v] = X; pos[v + 1] = 0; pos[v + 2] = -Y; pos[v + 3] = X; pos[v + 4] = h; pos[v + 5] = -Y;
-            aT[vbase] = aT[vbase + 1] = t; aYear[vbase] = aYear[vbase + 1] = ay; aCat[vbase] = aCat[vbase + 1] = ct; aGroup[vbase] = aGroup[vbase + 1] = gid; aBase[vbase] = aBase[vbase + 1] = fBase[i]; aMat[vbase] = aMat[vbase + 1] = mc; aEnd[vbase] = aEnd[vbase + 1] = gEndT[g];
-            aS[vbase] = aS[vbase + 1] = sAlong;
-            if (k < n) { flat.push(X, Y); topOf.push(vbase + 1); }
-            vbase += 2;
+          for (let k = 0; k < n; k++) {
+            if (k > 0) { x += D.delta[d0 + 2 * (k - 1)]; y += D.delta[d0 + 2 * (k - 1) + 1]; }
+            xs[k] = x / 10; ys[k] = y / 10; flat.push(xs[k], ys[k]);
           }
-          for (let k = 0; k < n; k++) { const bi = b0 + 2 * k, bj = bi + 2; idx[ni++] = bi; idx[ni++] = bj; idx[ni++] = bj + 1; idx[ni++] = bi; idx[ni++] = bj + 1; idx[ni++] = bi + 1; }
+          let c0 = -1;
+          for (let k = 0; k < n; k++) {
+            const p = (k + n - 1) % n, q = (k + 1) % n, ax = xs[k] - xs[p], az = ys[k] - ys[p], bx = xs[q] - xs[k], bz = ys[q] - ys[k];
+            const la = Math.hypot(ax, az), lb = Math.hypot(bx, bz);
+            corner[k] = la > 0.05 && lb > 0.05 && ax * bx + az * bz < CORNER * la * lb ? 1 : 0;
+            if (corner[k] && c0 < 0) c0 = k;
+          }
+          if (c0 < 0) c0 = 0;   // a round outline: one run all the way round
+          let s = 0, run0 = vbase, cur = pair(xs[c0], ys[c0], 0);
+          const endRun = () => { const L = Math.min(s, 999) + 1000 * fl; for (let v = run0; v < vbase; v++) aW[3 * v + 1] = L; };
+          for (let k = 1; k <= n; k++) {
+            const a = (c0 + k - 1) % n, b = (c0 + k) % n;
+            s += Math.hypot(xs[b] - xs[a], ys[b] - ys[a]);
+            const e = pair(xs[b], ys[b], s);
+            idx[ni++] = cur; idx[ni++] = e; idx[ni++] = e + 1; idx[ni++] = cur; idx[ni++] = e + 1; idx[ni++] = cur + 1;
+            if (k < n && corner[b]) { endRun(); run0 = vbase; s = 0; cur = pair(xs[b], ys[b], 0); } else cur = e;
+          }
+          endRun();
         }
+        const roof0 = vbase; for (let k = 0; k < flat.length / 2; k++) one(flat[2 * k], h, flat[2 * k + 1], 0);
         const tri = earcut(flat, holes.length ? holes : null, 2);
-        for (let k = 0; k < tri.length; k++) idx[ni++] = topOf[tri[k]];   // the roof over the top vertices
+        for (let k = 0; k < tri.length; k++) idx[ni++] = roof0 + tri[k];
         if (hid) ni = ni0;   // a landmark drawn from its 3D parts: keep the outline's data, not its block
       }
       setProgress(0.05 + 0.85 * (i1 / N));
       await yieldToUI();
     }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute("aT", new THREE.BufferAttribute(aT, 1));
-    geo.setAttribute("aYear", new THREE.BufferAttribute(aYear, 1));
-    geo.setAttribute("aCat", new THREE.BufferAttribute(aCat, 1));
-    geo.setAttribute("aGroup", new THREE.BufferAttribute(aGroup, 1));
-    geo.setAttribute("aBase", new THREE.BufferAttribute(aBase, 1));
-    geo.setAttribute("aMat", new THREE.BufferAttribute(aMat, 1));
-    geo.setAttribute("aEnd", new THREE.BufferAttribute(aEnd, 1));
-    geo.setAttribute("aS", new THREE.BufferAttribute(aS, 1));
+    const geo = new THREE.BufferGeometry(), nv = vbase;
+    geo.setAttribute("position", new THREE.BufferAttribute(pos.subarray(0, 3 * nv), 3));
+    geo.setAttribute("aT", new THREE.BufferAttribute(aT.subarray(0, nv), 1));
+    geo.setAttribute("aYear", new THREE.BufferAttribute(aYear.subarray(0, nv), 1));
+    geo.setAttribute("aCat", new THREE.BufferAttribute(aCat.subarray(0, nv), 1));
+    geo.setAttribute("aGroup", new THREE.BufferAttribute(aGroup.subarray(0, nv), 1));
+    geo.setAttribute("aBase", new THREE.BufferAttribute(aBase.subarray(0, nv), 1));
+    geo.setAttribute("aMat", new THREE.BufferAttribute(aMat.subarray(0, nv), 1));
+    geo.setAttribute("aEnd", new THREE.BufferAttribute(aEnd.subarray(0, nv), 1));
+    geo.setAttribute("aW", new THREE.BufferAttribute(aW.subarray(0, 3 * nv), 3));
     geo.setIndex(new THREE.BufferAttribute(idx.subarray(0, ni), 1));
     geo.computeBoundingSphere();
     const mesh = new THREE.Mesh(geo, bMat);
@@ -1482,18 +1497,20 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   // 5 hip, 6 mansard, 7 single slope, 8 taper (the part narrows toward a point, for the Eiffel Tower), 9 wedge (narrows along its length).
   function partsGeometry(list, gT, gYear, catOf, gBase, matOf, gEndT) {
     const pos = new Grow(Float32Array, 1 << 15), at = new Grow(Float32Array, 1 << 13), ay = new Grow(Float32Array, 1 << 13), ac = new Grow(Float32Array, 1 << 13), ag = new Grow(Float32Array, 1 << 13), ab = new Grow(Float32Array, 1 << 13), am = new Grow(Float32Array, 1 << 13), ae = new Grow(Float32Array, 1 << 13);
-    const ix = new Grow(Uint32Array, 1 << 15), as = new Grow(Float32Array, 1 << 13); let nv = 0, T = 0, Y = 0, Cc = 0, Gi = 0, Bz = 0, Mt = 0, Et = -1, Sv = 0;
-    const V = (x, y, z) => { pos.reserve(3); pos.a[pos.n++] = x; pos.a[pos.n++] = y; pos.a[pos.n++] = -z; at.push1(T); ay.push1(Y); ac.push1(Cc); ag.push1(Gi); ab.push1(Bz); am.push1(Mt); ae.push1(Et); as.push1(Sv); return nv++; };
-    // a wall from point i to point j whose foot starts s0 metres along the outline; returns its length
-    const wallQ = (xi, zi, xj, zj, yb, yj, yi, s0) => { const L = Math.hypot(xj - xi, zj - zi); Sv = s0; const a = V(xi, yb, zi); Sv = s0 + L; const b = V(xj, yb, zj), c = V(xj, yj, zj); Sv = s0; const d = V(xi, yi, zi); Sv = 0; tri(a, b, c); tri(a, c, d); return L; };
+    const ix = new Grow(Uint32Array, 1 << 15), aw = new Grow(Float32Array, 1 << 14); let nv = 0, T = 0, Y = 0, Cc = 0, Gi = 0, Bz = 0, Mt = 0, Et = -1, Sv = 0, Lv = 0, Hv = 0;
+    const V = (x, y, z) => { pos.reserve(3); pos.a[pos.n++] = x; pos.a[pos.n++] = y; pos.a[pos.n++] = -z; at.push1(T); ay.push1(Y); ac.push1(Cc); ag.push1(Gi); ab.push1(Bz); am.push1(Mt); ae.push1(Et); aw.reserve(3); aw.a[aw.n++] = Sv; aw.a[aw.n++] = Lv; aw.a[aw.n++] = Hv; return nv++; };
+    // a wall from point i to point j on a run of length L (the windows' aW, as in the main mesh), its foot s0 metres along the run
+    const wallQ = (xi, zi, xj, zj, yb, yj, yi, s0, L) => {
+      const d = Math.hypot(xj - xi, zj - zi); Lv = L;
+      Sv = s0; Hv = yi; const a = V(xi, yb, zi); Sv = s0 + d; Hv = yj; const b = V(xj, yb, zj), c = V(xj, yj, zj); Sv = s0; Hv = yi; const e = V(xi, yi, zi);
+      Sv = 0; Lv = 0; Hv = 0; tri(a, b, c); tri(a, c, e);
+    };
     const tri = (a, b, c) => { ix.reserve(3); ix.a[ix.n++] = a; ix.a[ix.n++] = b; ix.a[ix.n++] = c; };
     const quad = (x0, z0, y0, x1, z1, y1, x2, z2, y2, x3, z3, y3) => { const a = V(x0, y0, z0), b = V(x1, y1, z1), c = V(x2, y2, z2), d = V(x3, y3, z3); tri(a, b, c); tri(a, c, d); };
     const ONION = [[0, 1], [0.12, 1.16], [0.3, 1.2], [0.5, 1.02], [0.68, 0.7], [0.84, 0.36], [0.95, 0.12], [1, 0]];
-    for (const p of list) {
-      const g = p.g; if (g < 0 || g >= gT.length) continue;
-      T = gT[g]; Y = gYear[g]; Cc = catOf[g]; Gi = g + 1; Bz = gBase ? gBase[g] : 0; Mt = matOf ? matOf[g] : 0; Et = gEndT ? gEndT[g] : -1;
-      const rings = p.r.map((r) => decodeRing(r, 10)), R = rings[0], n = R.length / 2; if (n < 3) continue;
-      // centre and main axes of the footprint
+    // the shape of each part: its rings, centre, main axes, the height of its walls and, for a single slope, the top of each corner
+    const shapeOf = (p) => {
+      const rings = p.r.map((r) => decodeRing(r, 10)), R = rings[0], n = R.length / 2; if (n < 3) return null;
       let cx = 0, cz = 0; for (let i = 0; i < n; i++) { cx += R[2 * i]; cz += R[2 * i + 1]; } cx /= n; cz /= n;
       let sxx = 0, szz = 0, sxz = 0; for (let i = 0; i < n; i++) { const dx = R[2 * i] - cx, dz = R[2 * i + 1] - cz; sxx += dx * dx; szz += dz * dz; sxz += dx * dz; }
       const th = 0.5 * Math.atan2(2 * sxz, sxx - szz), ux = Math.cos(th), uz = Math.sin(th), vx = -uz, vz = ux;
@@ -1502,11 +1519,59 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       let rh = p.rh;
       if (rh == null) rh = k === 1 || k === 2 || k === 3 ? Math.min(Math.max(A, Bw), span * 0.6) : k === 4 || k === 5 ? Math.min(Bw * 0.8, span * 0.5) : k === 6 ? Math.min(Bw * 0.6, span * 0.4) : k === 7 ? Math.min(Bw * 0.4, span * 0.3) : 0;
       const hw = k === 0 || k === 8 ? h : Math.max(b0, h - rh);
-      // top of each wall vertex (a single slope tilts across the short axis)
       // a single slope faces p.d (degrees from north, downhill) when the data says so, else it tilts across the short axis
       let sx = vx, sz = vz, ext = Bw;
       if (k === 7 && p.d != null) { sx = -Math.sin(p.d * Math.PI / 180); sz = -Math.cos(p.d * Math.PI / 180); ext = 0; for (let i = 0; i < n; i++) ext = Math.max(ext, Math.abs((R[2 * i] - cx) * sx + (R[2 * i + 1] - cz) * sz)); }
       const top = (i) => k === 7 ? hw + rh * (0.5 + ((R[2 * i] - cx) * sx + (R[2 * i + 1] - cz) * sz) / (2 * Math.max(ext, 0.1))) : hw;
+      return { rings, R, n, cx, cz, ux, uz, vx, vz, A, Bw, b0, h, k, rh, hw, top };
+    };
+    const SH = list.map((p) => (p.g >= 0 && p.g < gT.length ? shapeOf(p) : null));
+    // Parts often overlap: a tall outline drawn as a part with the lower parts inside it, their outer walls in the same plane. Two
+    // walls in one plane flicker as the camera moves, one window pattern through the other, so a wall is drawn only where no other
+    // part's wall in the same plane, facing the same way, reaches from at least as low to at least as high (of two equal walls, the
+    // first part keeps its own). The walls of the plain prisms and roofs take part; the special shapes (8, 9, 10) are left alone.
+    const plain = (sh) => sh && sh.k !== 8 && sh.k !== 9 && sh.k !== 10;
+    const segOf = (rr) => { const m = rr.length / 2; let a2 = 0; for (let i = 0; i < m; i++) { const j = (i + 1) % m; a2 += rr[2 * i] * rr[2 * j + 1] - rr[2 * j] * rr[2 * i + 1]; } return a2 >= 0 ? 1 : -1; };
+    const WS = new Map(), wkey = (a, c) => a * 100003 + c;
+    SH.forEach((sh, pi) => {
+      if (!plain(sh)) return;
+      sh.rings.forEach((rr, ri) => {
+        const m = rr.length / 2, sg = segOf(rr) * (ri ? -1 : 1);
+        for (let i = 0; i < m; i++) {
+          const j = (i + 1) % m, x0 = rr[2 * i], z0 = rr[2 * i + 1], x1 = rr[2 * j], z1 = rr[2 * j + 1], L = Math.hypot(x1 - x0, z1 - z0); if (L < 0.2) continue;
+          const nx = sg * (z1 - z0) / L, nz = -sg * (x1 - x0) / L, c = x0 * nx + z0 * nz, ab = Math.round(Math.atan2(nz, nx) / 0.02), cb = Math.round(c / 0.2);
+          const w = { pi, g: list[pi].g, x0, z0, x1, z1, nx, nz, b: sh.b0, top: ri ? sh.hw : Math.min(sh.top(i), sh.top(j)) };
+          const kk = wkey(ab, cb); if (!WS.has(kk)) WS.set(kk, []); WS.get(kk).push(w);
+        }
+      });
+    });
+    // the parts of the wall from (x0, z0) to (x1, z1) that no other part's wall covers, as [t0, t1] along it; null when nothing does
+    const shown = (pi, g, x0, z0, x1, z1, nx, nz, b, yt) => {
+      const L = Math.hypot(x1 - x0, z1 - z0), c = x0 * nx + z0 * nz, ab = Math.round(Math.atan2(nz, nx) / 0.02), cb = Math.round(c / 0.2), cov = [];
+      for (let da = -1; da <= 1; da++) for (let dc = -1; dc <= 1; dc++) {
+        const lst = WS.get(wkey(ab + da, cb + dc)); if (!lst) continue;
+        for (const w of lst) {
+          if (w.pi === pi || w.nx * nx + w.nz * nz < 0.999 || Math.abs((w.x0 - x0) * nx + (w.z0 - z0) * nz) > 0.05) continue;
+          if (w.g !== g && !(gT[w.g] <= gT[g] && !(gEndT && gEndT[w.g] >= 0))) continue;   // another building covers it only if it always stands when this one does
+          if (w.b > b + 0.02 || w.top < yt - 0.02) continue;
+          if (Math.abs(w.b - b) <= 0.02 && Math.abs(w.top - yt) <= 0.02 && w.pi > pi) continue;   // two equal walls: the first part keeps its own
+          let t0 = ((w.x0 - x0) * (x1 - x0) + (w.z0 - z0) * (z1 - z0)) / (L * L), t1 = ((w.x1 - x0) * (x1 - x0) + (w.z1 - z0) * (z1 - z0)) / (L * L);
+          if (t0 > t1) [t0, t1] = [t1, t0];
+          if (t1 > 0.001 && t0 < 0.999) cov.push([Math.max(0, t0), Math.min(1, t1)]);
+        }
+      }
+      if (!cov.length) return null;
+      cov.sort((a, b2) => a[0] - b2[0]);
+      const out = []; let at = 0;
+      for (const [t0, t1] of cov) { if (t0 > at + 0.3 / L) out.push([at, t0]); at = Math.max(at, t1); }
+      if (at < 1 - 0.3 / L) out.push([at, 1]);
+      return out;
+    };
+    for (let pi = 0; pi < list.length; pi++) {
+      const p = list[pi], sh = SH[pi]; if (!sh) continue;
+      const g = p.g;
+      T = gT[g]; Y = gYear[g]; Cc = catOf[g]; Gi = g + 1; Bz = gBase ? gBase[g] : 0; Mt = matOf ? matOf[g] : 0; Et = gEndT ? gEndT[g] : -1;
+      const { rings, R, n, cx, cz, ux, uz, vx, vz, A, Bw, b0, h, k, rh, hw, top } = sh;
       const ring2 = (s) => { const o = new Float64Array(2 * n); for (let i = 0; i < n; i++) { o[2 * i] = cx + (R[2 * i] - cx) * s; o[2 * i + 1] = cz + (R[2 * i + 1] - cz) * s; } return o; };
       if (k === 8) {   // taper toward p.c with factor p.s
         const tc = p.c || [cx, cz], s = p.s;
@@ -1541,10 +1606,35 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
         for (let q = 0; q < tt.length; q += 3) tri(base + tt[q], base + tt[q + 1], base + tt[q + 2]);
         continue;
       }
-      // walls, for every ring (holes too)
+      // walls, for every ring (holes too), cut into runs at the corners as in the main mesh; a wall another part covers in part is
+      // drawn only where it shows, each piece a run of its own
       rings.forEach((rr, ri) => {
-        const m = rr.length / 2; let sw = 0;
-        for (let i = 0; i < m; i++) { const j = (i + 1) % m, yi = ri ? hw : top(i), yj = ri ? hw : top(j); sw += wallQ(rr[2 * i], rr[2 * i + 1], rr[2 * j], rr[2 * j + 1], b0, yj, yi, sw); }
+        const m = rr.length / 2, cor = new Uint8Array(m), cut = new Array(m).fill(null), sg = segOf(rr) * (ri ? -1 : 1); let c0 = -1;
+        for (let i = 0; i < m; i++) {
+          const p2 = (i + m - 1) % m, q = (i + 1) % m, ax = rr[2 * i] - rr[2 * p2], az = rr[2 * i + 1] - rr[2 * p2 + 1], bx = rr[2 * q] - rr[2 * i], bz = rr[2 * q + 1] - rr[2 * i + 1];
+          const la = Math.hypot(ax, az), lb = Math.hypot(bx, bz);
+          if (la > 0.05 && lb > 0.05 && ax * bx + az * bz < Math.cos(20 * Math.PI / 180) * la * lb) cor[i] = 1;
+          if (lb >= 0.2 && plain(sh)) {
+            const yt = ri ? hw : Math.max(top(i), top(q));
+            cut[i] = shown(pi, p.g, rr[2 * i], rr[2 * i + 1], rr[2 * q], rr[2 * q + 1], sg * bz / lb, -sg * bx / lb, b0, yt);
+          }
+        }
+        for (let i = 0; i < m; i++) if (cut[i]) { cor[i] = 1; cor[(i + 1) % m] = 1; }
+        for (let i = 0; i < m && c0 < 0; i++) if (cor[i]) c0 = i;
+        if (c0 < 0) c0 = 0;
+        const len = (i) => { const j = (i + 1) % m; return Math.hypot(rr[2 * j] - rr[2 * i], rr[2 * j + 1] - rr[2 * i + 1]); };
+        const runL = []; let acc = 0, open = false;
+        for (let kk = 0; kk < m; kk++) { const i = (c0 + kk) % m, j = (i + 1) % m; if (!cut[i]) { acc += len(i); open = true; } if (kk === m - 1 || cor[j]) { if (open) runL.push(acc); acc = 0; open = false; } }
+        let sw = 0, rn = 0; open = false;
+        for (let kk = 0; kk < m; kk++) {
+          const i = (c0 + kk) % m, j = (i + 1) % m, yi = ri ? hw : top(i), yj = ri ? hw : top(j);
+          const xi = rr[2 * i], zi = rr[2 * i + 1], xj = rr[2 * j], zj = rr[2 * j + 1];
+          if (cut[i]) {
+            const L = len(i);
+            for (const [t0, t1] of cut[i]) wallQ(xi + (xj - xi) * t0, zi + (zj - zi) * t0, xi + (xj - xi) * t1, zi + (zj - zi) * t1, b0, yi + (yj - yi) * t1, yi + (yj - yi) * t0, 0, Math.min((t1 - t0) * L, 999));
+          } else { wallQ(xi, zi, xj, zj, b0, yj, yi, sw, Math.min(runL[rn], 999)); sw += len(i); open = true; }
+          if (kk < m - 1 && cor[j]) { if (open) rn++; sw = 0; open = false; }
+        }
       });
       if (k === 0 || k === 7) {   // flat cap (with holes), or the tilted cap of a single slope
         const flat = [], holes = []; rings.forEach((rr, ri) => { if (ri) holes.push(flat.length / 2); for (const v of rr) flat.push(v); });
@@ -1581,7 +1671,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     geo.setAttribute("aT", new THREE.BufferAttribute(at.get(), 1)); geo.setAttribute("aYear", new THREE.BufferAttribute(ay.get(), 1));
     geo.setAttribute("aCat", new THREE.BufferAttribute(ac.get(), 1)); geo.setAttribute("aGroup", new THREE.BufferAttribute(ag.get(), 1)); geo.setAttribute("aBase", new THREE.BufferAttribute(ab.get(), 1)); geo.setAttribute("aMat", new THREE.BufferAttribute(am.get(), 1));
     geo.setAttribute("aEnd", new THREE.BufferAttribute(ae.get(), 1));
-    geo.setAttribute("aS", new THREE.BufferAttribute(as.get(), 1));
+    geo.setAttribute("aW", new THREE.BufferAttribute(aw.get(), 3));
     geo.setIndex(new THREE.BufferAttribute(ix.get(), 1));
     return geo;
   }
@@ -1797,8 +1887,6 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   const walkFov = () => isSmall() ? 64 : 56;
   const baseFov = () => WALK.on ? (WALK.landed ? WALK.fov : walkFov()) : isSmall() ? 50 : 34;
   const FOV_MIN = 16, FOV_MAX = 80;   // how far you can zoom in and out on the street
-  // før og nå: where the line sits (share of the screen width), and the year it opens on when the timeline stands at today
-  const CMP = { on: false, split: 0.5, y0: 1950, sx: "", ky: "", kx: "" };
   let needsRender = true, labelsDirty = true;
   const invalidate = () => { needsRender = true; labelsDirty = true; };
 
@@ -1809,8 +1897,6 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     $("brand").textContent = S.brand;
     $("q").placeholder = S.search; $("q").setAttribute("aria-label", S.search);
     $("walk-l").textContent = S.walk; $("walk-btn").setAttribute("aria-label", S.walkLabel); $("walk-btn").title = S.walkLabel;
-    $("cmp-l").textContent = S.cmp; $("cmp-btn").setAttribute("aria-label", S.cmpLabel); $("cmp-btn").title = S.cmpLabel;
-    $("split-knob").setAttribute("aria-label", S.cmpKnob); $("split-knob").title = S.cmpKnob;
     $("card-street-l").textContent = S.street; $("card-street").title = S.streetLabel;
     $("card-share-l").textContent = S.share; $("card-share").setAttribute("aria-label", S.shareLabel); $("card-share").title = S.shareLabel;
     $("walk-x").setAttribute("aria-label", S.walkEnd); $("walk-x").title = S.walkEnd;
@@ -2041,9 +2127,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       if (c.M.area) { const a = n ? c.cumArea[n - 1] : 0; $("n2").textContent = a >= 1e6 ? (a / 1e6).toLocaleString(LOCALE[LANG], { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " " + S.mio : fmtN(Math.round(a / 100) * 100); }
       $("range").setAttribute("aria-valuetext", String(y));
       for (const b of $("chaps").children) { const cp = c.chapters[+b.dataset.i]; if (cp) b.classList.toggle("seen", cp.t <= t); }
-      if (CMP.on) syncKnob();
     }
-    if (CMP.on) placeSplit();
     const live = playing && camMode === "follow" && t < TOTAL - FINALE ? hotspotName(t) : "";
     const lv = $("live"); const want = live ? `${S.nowBuilding} <b>${live}</b>` : "";
     if (lv.innerHTML !== want) lv.innerHTML = want;
@@ -2086,23 +2170,21 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     const showAll = !playing;
     const nowMs = performance.now();
     for (const l of [...c.lmsOrder.filter((q) => q.on), ...c.lmsOrder.filter((q) => !q.on)]) {
-      let vis = !rewinding && (l.on || !(nowMs - (l.offAt || 0) < 400)), x = 0, y = 0, tt = t;
+      let vis = !rewinding && t >= l.t && (showAll || t - l.t < 7) && (l.on || !(nowMs - (l.offAt || 0) < 400)) && (camMode !== "walk" || (l.v.distanceToSquared(camera.position) < 450 * 450 && inSight(l.v, l.g ?? -1)));   // on the street, only landmarks nearby and in sight
+      let x = 0, y = 0;
       if (vis) { _v.copy(l.v).project(camera); x = (_v.x * 0.5 + 0.5) * Wd; y = (-_v.y * 0.5 + 0.5) * Hd; vis = _v.z < 1 && x > 0 && x < Wd && y > 0 && y < Hd; }
-      if (vis) { tt = sideT(x); vis = tt >= l.t && (showAll || tt >= TOTAL || tt - l.t < 7); }   // in før og nå each side of the line has its own year
-      if (vis && camMode === "walk") vis = l.v.distanceToSquared(camera.position) < 450 * 450 && inSight(l.v, l.g ?? -1);   // on the street, only landmarks nearby and in sight
       if (vis) {
         if (!l.w) { l.w = l.el.offsetWidth || 90; l.h = l.el.offsetHeight || 40; }
         const box = [x - 3, y - l.h, x + l.w, y - l.h + 17], line = [x - 3, y - l.h + 17, x + 3, y];   // the name, and the leader line under it
         if (box[0] < 16 || box[2] > Wd - 16 || box[1] < 6 || hit(box) || hit(line)) vis = false; else placed.push(box, line);
       }
       if (vis !== l.on) { l.el.classList.toggle("on", vis); l.on = vis; if (!vis) l.offAt = nowMs; }
-      if (vis) { l.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(0, -100%)`; l.el.classList.toggle("fresh", playing && tt < TOTAL && tt - l.t < 7); }
+      if (vis) { l.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(0, -100%)`; l.el.classList.toggle("fresh", playing && t - l.t < 7); }
     }
     for (const L of [...(c.sls || []).filter((q) => q.on), ...(c.sls || []).filter((q) => !q.on)]) {
-      let vis = camMode !== "walk" && roadsOn && !rewinding && (L.on || !(nowMs - (L.offAt || 0) < 400));
+      let vis = camMode !== "walk" && roadsOn && !rewinding && t >= L.tA && t < L.tB && (showAll || t - L.tA < 9) && (L.on || !(nowMs - (L.offAt || 0) < 400));
       let x = 0, y = 0;
       if (vis) { _v.copy(L.v).project(camera); x = (_v.x * 0.5 + 0.5) * Wd; y = (-_v.y * 0.5 + 0.5) * Hd; vis = _v.z < 1 && x > 20 && x < Wd - 20 && y > 20 && y < Hd - 20; }
-      if (vis) { const tt = sideT(x); vis = tt >= L.tA && tt < L.tB && (showAll || tt >= TOTAL || tt - L.tA < 9); }
       if (vis) {
         if (!L.w) { L.w = L.el.offsetWidth || 120; L.h = L.el.offsetHeight || 16; }
         const box = [x - L.w / 2 - 6, y - L.h / 2 - 3, x + L.w / 2 + 6, y + L.h / 2 + 3];
@@ -2131,9 +2213,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (!city) return -1;
     const r = renderer.domElement.getBoundingClientRect(), pr = renderer.getPixelRatio();
     camera.setViewOffset(r.width * pr, r.height * pr, Math.floor((cx - r.left) * pr), Math.floor((cy - r.top) * pr), 1, 1);
-    const tKeep = U.uT.value; if (CMP.on) U.uT.value = sideT(cx);   // in før og nå, the side tapped decides which buildings stand
     renderer.setRenderTarget(pickRT); renderer.setClearColor(0x000000, 1); renderer.clear(); renderer.render(pickScene, camera);
-    U.uT.value = tKeep;
     renderer.readRenderTargetPixels(pickRT, 0, 0, 1, 1, px); renderer.setRenderTarget(null); renderer.setClearColor(hex(C.table), 1);
     camera.clearViewOffset();
     const id = px[0] + px[1] * 256 + px[2] * 65536;
@@ -2260,7 +2340,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (store.get("aarringe-intro") === "seen" && !still) {   // the intro is shown once; after that the city just starts
       $("intro").hidden = true; introStart = 0; clearTimeout(introTimer);
       // the one visit after something new: the news, with the town standing still so nothing covers it; after that, as before
-      if (store.get("aarringe-news-1") !== "seen") { store.set("aarringe-news-1", "seen"); setTimeout(() => showToast(S.news, () => setCompare(true), S.newsTry, 12000), 700); return; }
+      if (store.get("aarringe-news-1") !== "seen") { store.set("aarringe-news-1", "seen"); setTimeout(() => showToast(S.news, null, null, 9000), 700); return; }
       if (!reduce) introTimer = setTimeout(() => { if (!playing && !rewinding && camMode !== "tween") rewindAndPlay(); }, 1200);
       return;
     }
@@ -2467,7 +2547,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (loadingNow) { if (e.key !== "Tab") e.preventDefault(); return; }
     // Escape works from anywhere except the search field, which handles its own
     if (e.key === "Escape" && e.target !== q) {
-      if (!$("sheet").hidden) closeSheet(); else if (!$("menu").hidden) closeMenu(true); else if (selected >= 0) select(-1); else if (!$("intro").hidden) hideIntro(); else if (WALK.on) stopWalk(true); else if (CMP.on) setCompare(false);
+      if (!$("sheet").hidden) closeSheet(); else if (!$("menu").hidden) closeMenu(true); else if (selected >= 0) select(-1); else if (!$("intro").hidden) hideIntro(); else if (WALK.on) stopWalk(true);
       return;
     }
     if (!city || e.target.closest("input, textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -2852,13 +2932,40 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     return (c.roadMask = { m, nx, nz, CS, x0: b[0], z0: b[2] });
   }
   function onRoad(x, z) { const R = roadMask(), col = Math.floor((x - R.x0) / R.CS), row = Math.floor((z - R.z0) / R.CS); return col >= 0 && row >= 0 && col < R.nx && row < R.nz && R.m[row * R.nx + col] === 1; }
+  // the trees by 10 m square, for the view from the street: a crown in the way hides a house as well as a wall does
+  function treeGrid() {
+    const c = city; if (c.treeGrid) return c.treeGrid;
+    const T = c.D.trees, cells = new Map();
+    if (T && T.n) for (let i = 0; i < T.n; i++) {
+      const x = T.x0 + T.x[i] / 2, z = -(T.y0 + T.y[i] / 2), k = Math.floor(x / 10) + "," + Math.floor(z / 10);
+      let l = cells.get(k); if (!l) cells.set(k, (l = [])); l.push(x, z, Math.max(1.5, T.r[i] / 10));
+    }
+    return (c.treeGrid = cells);
+  }
+  const treeAt = (x, z) => {
+    const l = treeGrid().get(Math.floor(x / 10) + "," + Math.floor(z / 10)); if (!l) return false;
+    for (let i = 0; i < l.length; i += 3) if ((l[i] - x) ** 2 + (l[i + 1] - z) ** 2 < (0.8 * l[i + 2]) ** 2) return true;
+    return false;
+  };
   function spotFor(g) {
     const c = city, bx = c.gX[g], bz = c.gZ[g], h = c.gH[g];
     let cdx = camera.position.x - bx, cdz = camera.position.z - bz; const cl = Math.hypot(cdx, cdz) || 1; cdx /= cl; cdz /= cl;
-    const want = clamp(Math.max(h * 1.6, Math.sqrt(c.gArea[g]) * 0.9), 12, 70), P = { x: 0, z: 0 };
+    // far enough back to see the whole front: a phone held upright sees a narrow slice of the street, so it stands further back
+    const hf = Math.tan(walkFov() * Math.PI / 360) * innerWidth / innerHeight, wide = clamp(0.85 / hf, 1, 1.8), half = Math.atan(hf);
+    const want = clamp(Math.max(h * 1.6, Math.sqrt(c.gArea[g]) * 0.9 * wide), 12, 90), P = { x: 0, z: 0 };
+    // the house's main axes, from the walls of its outline: standing square to a front beats looking at a corner, so the four
+    // directions straight out from the fronts are tried too, with a small bonus when the house is close to a rectangle
+    const WG = walkGrid(); let c4 = 0, s4 = 0, tot = 0;
+    for (let i = 0; i < c.D.N; i++) {
+      if (c.D.group[i] !== g) continue;
+      const a = WG.rings[i][0], n = a.length / 2;
+      for (let k = 0; k < n; k++) { const j = (k + 1) % n, ex = a[2 * j] - a[2 * k], ez = a[2 * j + 1] - a[2 * k + 1], L = Math.hypot(ex, ez), th = 4 * Math.atan2(ez, ex); c4 += L * Math.cos(th); s4 += L * Math.sin(th); tot += L; }
+    }
+    const dirs = []; for (let k = 0; k < 24; k++) dirs.push([(k / 24) * Math.PI * 2, 0]);
+    if (tot > 0) { const th = Math.atan2(s4, c4) / 4, sq = Math.hypot(c4, s4) / tot; for (let k = 0; k < 4; k++) { const ph = th + k * Math.PI / 2; dirs.push([Math.atan2(Math.cos(ph), Math.sin(ph)), sq > 0.6 ? -6 : 0]); } }
     let best = null;
-    for (let k = 0; k < 24; k++) {
-      const a = (k / 24) * Math.PI * 2, dx = Math.sin(a), dz = Math.cos(a);
+    for (const [a, bonus] of dirs) {
+      const dx = Math.sin(a), dz = Math.cos(a);
       let e = 0; P.x = bx; P.z = bz;
       while (e < 300 && insideStanding(P)) { e += 1; P.x = bx + dx * e; P.z = bz + dz * e; }   // out through the wall on this side
       if (e >= 300) continue;
@@ -2875,16 +2982,22 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       if (d < 4) continue;
       const x = bx + dx * (e + d), z = bz + dz * (e + d);
       if (!inTown(x, z)) continue;
-      // how much of the house is hidden: lines from the spot to points along its front, blocked by another standing building
+      // how much of the picture is taken up by something else: lines across the view, from the spot to as far as the house's front,
+      // blocked by another standing building or a tree. On a phone held upright the view is narrow, so the lines are too.
       let blocked = 0, rays = 0;
-      for (const off of [-0.5, 0, 0.5]) {
-        const ox = bx + dx * e - dz * off * Math.sqrt(c.gArea[g]) * 0.5, oz = bz + dz * e + dx * off * Math.sqrt(c.gArea[g]) * 0.5, L = Math.hypot(ox - x, oz - z);
-        let hit = false;
-        for (let q = 1.5; q < L - 1; q += 1.5) { P.x = x + (ox - x) * q / L; P.z = z + (oz - z) * q / L; const w = whoStands(P); if (w >= 0 && w !== g) { hit = true; break; } }
-        rays++; if (hit) blocked++;
+      const tx = bx - x, tz = bz - z, tl = Math.hypot(tx, tz) || 1, reach = Math.max(4, tl - 0.45 * Math.sqrt(c.gArea[g]));
+      for (const f of [-0.75, -0.4, 0, 0.4, 0.75]) {
+        const an = f * half, ca = Math.cos(an), sa = Math.sin(an), rx = (tx * ca - tz * sa) / tl, rz = (tx * sa + tz * ca) / tl;
+        let hit = 0;
+        for (let q = 2; q < reach; q += 1.5) {
+          P.x = x + rx * q; P.z = z + rz * q; const w = whoStands(P);
+          if (w >= 0 && w !== g) { hit = 1; break; }
+          if (!hit && q > 3 && treeAt(P.x, P.z)) hit = 0.7;
+        }
+        rays++; blocked += hit * (f === 0 ? 1.5 : 1);
       }
       // a street is good, a clear view is better, and standing so close that the house is a wall is worst; the side the view came from breaks ties
-      const score = (road ? 0 : 20) + Math.abs(d - want) * 0.25 + Math.max(0, 0.7 * want - d) * 1.8 - (dx * cdx + dz * cdz) * 8 + (e > 60 ? 10 : 0) + 45 * blocked / rays;
+      const score = (road ? 0 : 20) + Math.abs(d - want) * 0.25 + Math.max(0, 0.7 * want - d) * 1.8 - (dx * cdx + dz * cdz) * 8 + (e > 60 ? 10 : 0) + 45 * blocked / (rays + 0.5) + bonus;
       if (!best || score < best.score) best = { x, z, d, score };
     }
     if (!best) {   // a cramped yard: straight out on the side the view comes from
@@ -2908,69 +3021,13 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   }
   $("card-street").onclick = () => { if (selected >= 0) streetView(selected); };
 
-  // ---------------- før og nå ----------------
-  // The screen is drawn twice, each half cut out with the scissor: left of the line the town in the year on the timeline, right of it
-  // the town today. Each pass renders its own shadows, so a house that is not built yet casts none on its side.
-  const splitEl = $("split"), knob = $("split-knob");
-  const splitPx = () => Math.round(CMP.split * innerWidth);
-  const sideT = (x) => CMP.on && x >= splitPx() ? TOTAL : t;
-  function renderSplit() {
-    const W = innerWidth, H = innerHeight, sx = splitPx(), mark = U.uMarkOn.value;
-    renderer.setScissorTest(true);
-    renderer.setScissor(0, 0, sx, H); renderer.render(scene, camera);
-    U.uT.value = TOTAL; U.uNow.value = city.W.tToYear(TOTAL); U.uMarkOn.value = 0;
-    renderer.setScissor(sx, 0, W - sx, H); renderer.render(scene, camera);
-    U.uT.value = t; U.uNow.value = city.W.tToYear(t); U.uMarkOn.value = mark;
-    renderer.setScissorTest(false);
-  }
-  // the line where you left it; the knob halfway down the part of the screen the panels leave open
-  function placeSplit() {
-    const sx = splitPx() + "px";
-    if (sx !== CMP.sx) { CMP.sx = sx; document.documentElement.style.setProperty("--sx", sx); }
-    const top = Math.max(document.querySelector(".plate").getBoundingClientRect().bottom, WALK.on && isSmall() ? $("walkchip").getBoundingClientRect().bottom : 0);
-    const card = $("card"), bot = isSmall() && !card.hidden ? card.getBoundingClientRect().top : document.querySelector(".bar").getBoundingClientRect().top;
-    const ky = Math.round((top + bot) / 2) + "px";
-    if (ky !== CMP.ky) { CMP.ky = ky; document.documentElement.style.setProperty("--ky", ky); }
-    // near an edge the knob slides along the line so it stays whole on screen
-    const kw = knob.offsetWidth || 140, x = splitPx(), kx = Math.round(clamp(x, kw / 2 + 8, innerWidth - kw / 2 - 8) - x) + "px";
-    if (kx !== CMP.kx) { CMP.kx = kx; document.documentElement.style.setProperty("--kx", kx); }
-  }
-  function syncKnob() { if (!city) return; const y = String(Math.min(2026, Math.floor(city.W.tToYear(t)))); if ($("split-a").textContent !== y) $("split-a").textContent = y; }
-  function setCompare(on) {
-    if (!city || on === CMP.on) return;
-    CMP.on = on; document.body.classList.toggle("comparing", on); $("cmp-btn").setAttribute("aria-pressed", String(on));
-    if (on) {
-      hideIntro();
-      if (t >= TOTAL - 0.01 && !playing && !rewinding) jumpTo(city.W.yearToT(CMP.y0 + 0.5));   // today against today shows nothing: open on 1950
-      splitEl.hidden = false; placeSplit(); syncKnob();
-      requestAnimationFrame(() => requestAnimationFrame(() => { if (CMP.on) splitEl.classList.add("on"); }));
-      if (store.get("aarringe-cmp-hint") !== "seen") { store.set("aarringe-cmp-hint", "seen"); showToast(S.cmpHint, null, null, 9000); }
-    } else { splitEl.classList.remove("on"); setTimeout(() => { if (!CMP.on) splitEl.hidden = true; }, 260); }
-    invalidate();
-  }
-  let sDrag = null;
-  function splitDown(e) {
-    e.preventDefault(); e.stopPropagation();
-    sDrag = { id: e.pointerId, dx: e.clientX - splitPx(), el: e.currentTarget }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is gone */ }
-    document.body.classList.add("dragsplit"); hideIntro(true); tip.hidden = true;
-  }
-  function splitMove(e) { if (!sDrag || e.pointerId !== sDrag.id) return; CMP.split = clamp((e.clientX - sDrag.dx) / innerWidth, 0.04, 0.96); placeSplit(); invalidate(); }
-  function splitUp(e) { if (sDrag && e.pointerId === sDrag.id) { sDrag = null; document.body.classList.remove("dragsplit"); } }
-  for (const el of [knob, $("split-hit")]) { el.addEventListener("pointerdown", splitDown); el.addEventListener("pointermove", splitMove); el.addEventListener("pointerup", splitUp); el.addEventListener("pointercancel", splitUp); }
-  knob.addEventListener("keydown", (e) => {
-    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    e.preventDefault(); e.stopPropagation(); CMP.split = clamp(CMP.split + (e.key === "ArrowLeft" ? -0.03 : 0.03), 0.04, 0.96); placeSplit(); invalidate();
-  });
-  $("cmp-btn").onclick = () => setCompare(!CMP.on);
-
-  // ---------------- links to a house, a year or a comparison ----------------
-  // #hus=Langgaten+28&p=147,-122&aar=1900&fn=1 opens the page on that house (found by its place, in metres east and north of the
-  // town's origin, or else by its name), in that year, with før og nå on. The page takes the link off the address once it is used.
+  // ---------------- links to a house or a year ----------------
+  // #hus=Langgaten+28&p=147,-122&aar=1900 opens the page on that house (found by its place, in metres east and north of the
+  // town's origin, or else by its name), in that year. The page takes the link off the address once it is used.
   function linkFor(g) {
     const h = new URLSearchParams();
     if (g >= 0) { const n = lmName(g) || addrOf(g); if (n) h.set("hus", n); h.set("p", Math.round(city.gX[g]) + "," + Math.round(-city.gZ[g])); }
     if (t < TOTAL - 0.01) h.set("aar", String(Math.min(2026, Math.floor(city.W.tToYear(t)))));
-    if (CMP.on) h.set("fn", "1");
     return location.origin + location.pathname + "#" + h.toString();
   }
   function copyText(text) {
@@ -2988,9 +3045,9 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   $("card-share").onclick = () => { if (selected >= 0) shareLink(selected); };
   function readLink() {
     const raw = location.hash.slice(1); if (!raw) return null;
-    const h = new URLSearchParams(raw), L = { hus: h.get("hus"), p: null, aar: parseInt(h.get("aar"), 10) || 0, fn: h.get("fn") === "1" };
+    const h = new URLSearchParams(raw), L = { hus: h.get("hus"), p: null, aar: parseInt(h.get("aar"), 10) || 0 };
     const pp = (h.get("p") || "").split(",").map(Number); if (pp.length === 2 && pp.every(Number.isFinite)) L.p = pp;
-    return L.hus || L.p || L.aar || L.fn ? L : null;
+    return L.hus || L.p || L.aar ? L : null;
   }
   // the name decides, the place picks between buildings that share one (an address with a shed, a school of four buildings);
   // a building with no name, or a name that has changed, is found by its place alone
@@ -3011,7 +3068,6 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     try { history.replaceState(null, "", location.pathname + location.search); } catch (err) { /* a sandboxed page */ }
     hideIntro(); setFollow(false);
     if (L.aar) jumpTo(L.aar >= 2026 ? TOTAL : city.W.yearToT(clamp(L.aar, city.firstYear, 2025) + 0.5));
-    if (L.fn) setCompare(true);
     const g = L.hus || L.p ? findLinked(L) : -1;
     if (g >= 0) select(g, true); else if (L.hus || L.p) showToast(S.linkMissing);
   }
@@ -3125,7 +3181,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       for (const tt of city.treeTiles) { const near = tt.c.distanceTo(camera.position) < lodD; tt.hi.visible = city.treesOn && near; tt.lo.visible = city.treesOn && !near; }
       const skyA = camMode === "walk" ? (WALK.fly ? WALK.flyE : 1) : camMode === "tween" && tw.fog0 ? 1 - tw.e : 0;
       sky.visible = skyA > 0.002; if (sky.visible) { skyU.uA.value = skyA; sky.position.copy(camera.position); sky.scale.setScalar(camera.far * 0.5); }
-      if (CMP.on) renderSplit(); else renderer.render(scene, camera);
+      renderer.render(scene, camera);
       needsRender = false;
       frameTimes.push(dt * 1000);   // time between frames includes the GPU work of the previous one
       if (frameTimes.length > 90) frameTimes.splice(0, frameTimes.length - 90);
@@ -3228,7 +3284,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   applyStrings(); drawKey(); resize();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
   requestAnimationFrame(frame);
-  if (still) window.__dbg = { city: () => city, pose: directorPose, camera, renderer, scene, walk: () => WALK, camMode: () => camMode, t: () => t, dropAt, groundHit, pick,   // test hooks, only with ?still
+  if (still) window.__dbg = { city: () => city, pose: directorPose, camera, renderer, scene, walk: () => WALK, camMode: () => camMode, t: () => t, dropAt, groundHit, pick, spotFor,   // test hooks, only with ?still
     shadows: (on) => { sun.castShadow = on; for (const m of city.treeMeshes) m.castShadow = on; needsRender = true; },
     hide: (what, on) => { const c = city; if (what === "trees") c.treesOn = !on; if (what === "buildings") c.mesh.visible = !on; needsRender = true; },
     look: (x, y, z, dist, az, pol) => {   // a fixed view of the finished city, for close-up checks
