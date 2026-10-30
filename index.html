@@ -244,13 +244,41 @@ body.playing .live { min-height: 17px; }
 body.walking #follow { display: none; }
 body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 @media (prefers-reduced-motion: reduce) { .walkchip { transition: none; } .walkchip .dot { animation: none; } }
-/* tablets: the walk button keeps only its arrow, so the top row fits beside the plate */
-@media (min-width: 701px) and (max-width: 900px) { .btn.walk { width: 38px; padding: 0; justify-content: center; } .btn.walk span { display: none; } }
+/* før og nå: the screen split in two by a line you drag; the year on the timeline to the left, today to the right */
+.btn.cmp { display: inline-flex; align-items: center; gap: 7px; }
+.btn.cmp svg { width: 15px; height: 15px; flex: none; }
+.btn.cmp[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.split { position: fixed; z-index: 3; top: 0; bottom: 0; left: 0; width: 0; transform: translateX(var(--sx, 50vw)); pointer-events: none; opacity: 0; transition: opacity 0.25s; }
+.split.on { opacity: 1; }
+.split-line { position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: var(--paper); box-shadow: 0 0 0 1px rgba(42, 34, 29, 0.32); }
+.split-hit { position: absolute; top: 0; bottom: 0; left: -14px; width: 28px; pointer-events: auto; cursor: ew-resize; touch-action: none; }
+.split-knob { position: absolute; left: var(--kx, 0px); top: var(--ky, 50vh); transform: translate(-50%, -50%); pointer-events: auto; touch-action: none; cursor: ew-resize;
+  height: 40px; padding: 0; border: 0; background: var(--paper); box-shadow: var(--lift), 0 3px 12px rgba(42, 34, 29, 0.16); display: flex; align-items: stretch;
+  font-family: var(--serif); font-weight: 800; font-size: 17px; font-variant-numeric: lining-nums tabular-nums; color: var(--ink); -webkit-user-select: none; user-select: none; }
+.split-knob span { display: grid; place-items: center; width: 56px; }
+.split-knob i { font-style: normal; width: 26px; display: grid; place-items: center; border-left: 1px solid var(--hair); border-right: 1px solid var(--hair); color: var(--ink-2); }
+.split-knob i svg { width: 14px; height: 14px; }
+.split-knob:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+body.dragsplit, body.dragsplit * { cursor: ew-resize !important; }
+@media (prefers-reduced-motion: reduce) { .split { transition: none; } }
+/* the card's actions: see the house from the street, share a link to it */
+.card-acts { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.cbtn { height: 34px; padding: 0 12px; border: 1px solid var(--ink); background: none; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; }
+.cbtn svg { width: 13px; height: 13px; flex: none; }
+.cbtn:hover { background: var(--paper-2); }
+/* narrower screens: the walk and før og nå buttons keep only their icons, so the top row fits beside the plate */
+@media (min-width: 701px) and (max-width: 1120px) { .btn.walk, .btn.cmp { width: 38px; padding: 0; justify-content: center; } .btn.walk span, .btn.cmp span { display: none; } }
 
 @media (max-width: 700px) {
   .plate { width: 196px; padding: 9px 11px 10px; }
-  .btn.walk { width: 38px; padding: 0; justify-content: center; }
-  .btn.walk span { display: none; }
+  .btn.walk, .btn.cmp { width: 38px; padding: 0; justify-content: center; }
+  .btn.walk span, .btn.cmp span { display: none; }
+  .tools { gap: 6px; }
+  .split-knob { height: 36px; font-size: 15.5px; }
+  .split-knob span { width: 48px; }
+  .split-knob i { width: 22px; }
+  .card-acts { grid-column: 1 / -1; margin-top: 7px; }
+  .cbtn { height: 32px; }
   .walkchip { top: calc(env(safe-area-inset-top, 0px) + 66px); bottom: auto; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); max-width: none; }
   .walkchip.out { transform: translateY(-6px); }
   body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 116px); }
@@ -316,6 +344,7 @@ body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 
 <div id="stage" role="img" aria-label=""></div>
 <div class="labels" id="labels" aria-hidden="true"></div>
+<div class="split" id="split" hidden><div class="split-line"></div><div class="split-hit" id="split-hit"></div><button class="split-knob" id="split-knob"><span id="split-a"></span><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4 2 8l4 4M10 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></i><span id="split-b">2026</span></button></div>
 
 <div class="top">
   <section class="plate" aria-label="">
@@ -335,6 +364,7 @@ body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
       <input id="q" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="qr">
       <ul class="results" id="qr" role="listbox" hidden></ul>
     </div>
+    <button class="btn cmp" id="cmp-btn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 2.75h12.5v10.5H1.75z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2.75h6.25v10.5H8z" fill="currentColor"/></svg><span id="cmp-l"></span></button>
     <button class="btn walk" id="walk-btn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14.4 1.6 1.6 7.2l5.6 1.6 1.6 5.6z" fill="currentColor"/></svg><span id="walk-l"></span></button>
     <button class="btn" id="src-btn">Kilder</button>
     <button class="btn" id="menu-btn" aria-expanded="false" aria-controls="menu"></button>
@@ -372,6 +402,7 @@ body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
   <p class="card-w" id="card-w" hidden></p>
   <dl id="card-dl"></dl>
   <p class="card-f" id="card-f" hidden></p>
+  <div class="card-acts"><button class="cbtn" id="card-street"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14.4 1.6 1.6 7.2l5.6 1.6 1.6 5.6z" fill="currentColor"/></svg><span id="card-street-l"></span></button><button class="cbtn" id="card-share"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10V1.75M4.75 5 8 1.75 11.25 5M3 7.5v6.75h10V7.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span id="card-share-l"></span></button></div>
 </aside>
 
 <div class="bar">
@@ -406,6 +437,10 @@ body.walking .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 140px); }
 <p><b>Funnet for hånd.</b> For de største og viktigste bygningene uten år er årstallet søkt opp ett for ett, og kortet sier hvor det kommer fra. Det gjelder blant annet Ekeberg skole og flerbrukshallen, Gjøklep ungdomsskole, sykehjemmet og omsorgsboligene på Rove, Gausetangen og Gaupås barnehager, Borgen forsamlingslokale, «Casino» fra den tyske Grefsrud leir, Telebygget, Filadelfiakirken og Botne menighets bedehus, Fibo-fabrikken på Ekelund, høydebassenget ved Ekebergveien, Esso-stasjonen og Glassmagasinet i Langgaten, borettslagene i Barlinveien, på Bilet og i Hagemannsskogen, Plantasjen, kornsiloen, renseanlegget, og hovedbygningen og Gamle Gausen på Nedre Gausen. Kildene er Holmestrand kommune (blant annet <a href="https://holmestrand.kommune.no/_f/p1/i46dcabfa-78d6-4f21-9e54-bdaba9fb16a9/kpa-vedlegg-6-kulturminner-og-miljoer-kst-190624.pdf" target="_blank" rel="noopener">kulturminneplanen</a>), Wikipedia, Store norske leksikon, eiendomsdata fra Hjemla for den enkelte adressen, salgsannonser på Finn, utbyggere og entreprenører, og lokalavisene i <a href="https://www.nb.no/search" target="_blank" rel="noopener">Nasjonalbibliotekets nettbibliotek</a>, mest Jarlsberg Avis, og Statsbyggs landsverneplan for Nedre Gausen. 53 bygninger har år på denne måten. Der kildene var uenige, eller ikke sa sikkert hvilket bygg de gjaldt, står bygningen fortsatt uten år.</p>
 <p><b>Tips fra lesere.</b> Modellen ble delt i Facebook-gruppen «Holmestrand før og nå» i oktober 2026, og lesere har sendt tips om enkelte hus. Der et årstall eller et navn bare bygger på et tips, sier kortet det. Tips som kunne sjekkes, er sjekket. Nordre Klev 18 er delt i to etter et tips: den søndre delen fra rundt 1750 og den nordre, som ble bygget på i andre halvdel av 1800-tallet. Skillet følger knekken i omrisset. Gausetangen skole sto før som bygget i 2024, men det var året skolen ble bygget om til leiligheter. Den står nå uten år, fordi kildene er uenige om når skolen ble reist.</p>
 <p><b>Gå rundt.</b> «Gå rundt» setter deg ned på bakken der du står, i øyehøyde. Posisjonen til telefonen flytter deg når du går. Slår du på Kompass, snur bildet seg dit du peker telefonen. Uten posisjon, eller utenfor Holmestrand, starter turen i sentrum. Du kan også dobbelttrykke hvor som helst på kartet for å gå ned der, eller på et hus for å stå foran det. På bakken drar du for å se deg rundt og trykker på bakken for å gå dit. Med to fingre kniper du for å zoome og drar for å flytte deg. På en datamaskin zoomer du med rullehjulet og går med piltastene eller høyre museknapp. Trykk på play for å se byen vokse frem rundt deg. Posisjonen brukes bare i nettleseren din og sendes ikke noe sted.</p>
+<p><b>Se fra gaten.</b> Kortet for et hus har knappen «Se fra gaten». Den setter deg ned der du ser hele fasaden, helst midt i en gate foran huset, og ikke bak et annet hus. Gatene er veiflatene i OpenStreetMap. Står du for nær, kommer du deg lenger ut med to fingre eller piltastene.</p>
+<p><b>Før og nå.</b> «Før og nå» deler skjermen i to med en strek du kan dra. Til venstre står byen slik den var i året på tidslinjen, til høyre slik den er i dag. Den åpner på 1950, før boligfeltene på platået kom, og du velger et annet år på tidslinjen. Begge sidene er tegnet hver for seg, med egne skygger. Det virker også nede på gaten.</p>
+<p><b>Lenker.</b> «Del» på kortet lager en lenke som åpner modellen på huset, i året du ser på, og med før og nå hvis det er på. Lenken finner huset etter navnet og stedet, så den virker også for et uthus uten adresse.</p>
+<p><b>Vinduer.</b> Når du kommer nær, får boliger, forretninger, kontorer og skoler vinduer i hver etasje. De er ikke de virkelige vinduene. De viser hvor mange etasjer huset har og hvor stort det er, og forsvinner når du zoomer ut igjen.</p>
 <p><b>Aluminiumsverket.</b> Verket i sentrum er ett stort bygg i Matrikkelen. Det ble etablert i 1919 og er bygget ut i mange omganger siden, blant annet med et nytt valseverk under krigen og en stor utbygging 1945–50, men ingen kilde sier hvilken hall som er fra når. Derfor reiser hele dagens anlegg seg i 1919, og kortet sier det. De mindre byggene rundt det og hallene på Vesthøy, der verket bygget lakkeringsanlegg og trådvalseverk fra 1960, står fortsatt uten år. Kilder: <a href="https://snl.no/Speira_Holmestrand" target="_blank" rel="noopener">Store norske leksikon</a> og <a href="https://vestfoldmuseene.no/aluminiummuseet/1945-1967" target="_blank" rel="noopener">Aluminiummuseet</a>.</p>
 <p><b>Det nye rådhuset.</b> Rådhuset ved stasjonen åpnet i oktober 2026 og er for nytt for både OpenStreetMap og laserdataene. Formen er tegnet etter arkitektenes illustrasjoner (Spir Arkitekter for Bane NOR Eiendom): to murfløyer i fire etasjer ut fra fjellet, et parti langs fjellet mellom dem og Jernbanesmia foran gårdsrommet, der den søndre fløyen trapper ned til tre etasjer mot plassen. Størrelsen følger arealet, 5&nbsp;950&nbsp;m² på fire etasjer, og plasseringen Matrikkelens punkt for bygningen. Omrisset og høydene er altså omtrentlige. Kilder: <a href="https://holmestrand.kommune.no/nytt-radhus/" target="_blank" rel="noopener">Holmestrand kommune</a>, <a href="https://www.veidekke.com/investor-relations/company-disclosures/veidekke-new-city-hall-in-holmestrand/" target="_blank" rel="noopener">Veidekke</a> og <a href="https://byggfaktanyheter.no/nye-holmestrand-radhus-med-hoye-miljoambisjoner/" target="_blank" rel="noopener">Byggfakta</a>.</p>
 <p><b>Stasjonen i fjellet.</b> Stasjonen ligger 150 meter inne i fjellet og åpnet 28. november 2016. Portalbyggene ved nordre og søndre inngang er tegnet etter overflatemodellen og arkitektenes bilder (<a href="https://gottliebpaludan.com/en/projects/holmestrand-station" target="_blank" rel="noopener">Gottlieb Paludan Architects</a>): et skrått betongtak som stiger mot den åpne portalen, med inngangen trukket inn under det. Stasjonshallen rundt de to plattformene og gangtunnelene fra inngangene, også den fra heisen opp til Rove, er tegnet stiplet fra åpningen, etter OpenStreetMap. Den søndre inngangen har året fra åpningen, heishuset på Rove står uten år. Kilder: <a href="https://en.wikipedia.org/wiki/Holmestrand_Station" target="_blank" rel="noopener">Wikipedia</a> og <a href="https://betong.net/wp-content/uploads/Vinner-2017-Holmestrand-st._Jury-begrunnelse.pdf" target="_blank" rel="noopener">juryen for Betongtavlen 2017</a>.</p>
@@ -543,6 +578,14 @@ Object.assign(STRINGS.no, {
   walkDropped: (touch) => touch ? "Dra for å se deg rundt. Knip for å zoome, og dra med to fingre for å flytte deg." : "Dra for å se deg rundt og rull for å zoome. Gå med piltastene, eller dra med høyre museknapp.",
   walkHint: (touch) => touch ? "Dobbelttrykk hvor som helst på kartet for å gå ned på bakken der." : "Dobbeltklikk hvor som helst på kartet for å gå ned på bakken der.",
 });
+// før og nå, links and the card's actions
+Object.assign(STRINGS.no, {
+  cmp: "Før og nå", cmpLabel: "Sammenlign et år med i dag", cmpKnob: "Flytt skillet mellom før og nå",
+  cmpHint: "Dra i streken for å sammenligne. Til venstre står byen slik den var i året på tidslinjen, til høyre slik den er i dag.",
+  street: "Se fra gaten", streetLabel: "Stå på gaten foran huset", share: "Del", shareLabel: "Del en lenke til huset",
+  linkCopied: "Lenken er kopiert.", linkFail: "Kunne ikke kopiere lenken.", linkMissing: "Fant ikke huset fra lenken.",
+  news: "Nytt: Før og nå viser et år og i dag side om side. Fra kortet til et hus kan du se det fra gaten eller dele en lenke til det.", newsTry: "Prøv før og nå",
+});
 // where a walk starts without a position in town: the square north of the 1964 town hall, looking towards the church (metres east, north; heading in degrees)
 const WALK_START = { hol: [91, 50, -56] };
 const CITY_NAMES = { hol: { no: "Holmestrand" } };
@@ -639,6 +682,14 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   sun.shadow.mapSize.set(smap, smap);
   sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.5;
   scene.add(sun, sun.target);
+  // At street level the sky is a pale paper gradient over the haze; from above the town still lies on the plain kraft paper.
+  const skyU = { uA: { value: 0 }, uLo: { value: hex(C.table) }, uHi: { value: hex("#eee9dd") } };
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), new THREE.ShaderMaterial({
+    uniforms: skyU, side: THREE.BackSide, depthWrite: false, depthTest: false, fog: false,
+    vertexShader: "varying vec3 vD; void main() { vD = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: "uniform float uA; uniform vec3 uLo; uniform vec3 uHi; varying vec3 vD; void main() { float h = normalize(vD).y; vec3 c = mix(uLo, uHi, smoothstep(0.0, 0.6, h)); gl_FragColor = vec4(mix(uLo, c, uA), 1.0); }",
+  }));
+  sky.renderOrder = -10; sky.frustumCulled = false; sky.visible = false; scene.add(sky);
 
   // ---------------- shared uniforms and materials ----------------
   const U = {
@@ -658,11 +709,11 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     vVis = (und ? 1.0 : step(0.0, age)) * (1.0 - step(0.999, gone));
     float topV = step(0.01, transformed.y);
     transformed.y = max(transformed.y * g, topV * (und ? 0.6 : 0.0)) + aBase;`;
-  const VDECL = `attribute float aT; attribute float aYear; attribute float aCat; attribute float aGroup; attribute float aBase; attribute float aMat; attribute float aEnd;
+  const VDECL = `attribute float aT; attribute float aYear; attribute float aCat; attribute float aGroup; attribute float aBase; attribute float aMat; attribute float aEnd; attribute float aS; varying float vS;
     uniform vec3 uWallC[7]; uniform vec3 uRoofC[6]; varying vec3 vWallC; varying vec3 vRoofC; varying vec3 vWPos;
     uniform float uT; uniform float uNow; uniform float uMode; uniform float uUndFull; uniform float uHover; uniform float uSel; uniform float uMarkOn;
     uniform vec3 uRamp[7]; uniform float uRampY[7]; uniform vec3 uCats[6]; uniform vec3 uWhite; uniform vec3 uFoam; uniform vec3 uUnd; uniform vec3 uPre;
-    varying float vVis; varying vec3 vCol; varying float vFlash; varying float vY; varying float vTop; varying float vHi;
+    varying float vVis; varying vec3 vCol; varying float vFlash; varying float vY; varying float vTop; varying float vHi; varying float vLY; varying float vCat;
     vec3 ramp(float y) { vec3 c = uRamp[0]; for (int i = 0; i < 6; i++) { float a = uRampY[i], b = uRampY[i + 1]; if (y > a) c = mix(uRamp[i], uRamp[i + 1], clamp((y - a) / (b - a), 0.0, 1.0)); } return c; }
     vec3 catc(float c) { vec3 r = uCats[5]; for (int i = 0; i < 6; i++) { if (abs(c - float(i)) < 0.5) r = uCats[i]; } return r; }
     vec3 wallc(float c) { vec3 r = uWallC[0]; for (int i = 1; i < 7; i++) { if (abs(c - float(i)) < 0.5) r = uWallC[i]; } return r; }
@@ -672,7 +723,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\n" + VDECL)
       .replace("#include <begin_vertex>", "#include <begin_vertex>\n" + GROW + `
-        vTop = topV; vY = transformed.y;
+        vTop = topV; vY = transformed.y; vLY = transformed.y - aBase; vCat = aCat; vS = aS;
         bool pre = aYear > 0.5 && aYear < 1.5;
         float fresh = pre ? 0.0 : 1.0 - smoothstep(0.0, 30.0, uNow - aYear);
         float young = pre ? 0.0 : 1.0 - smoothstep(0.0, 10.0, uNow - aYear);
@@ -684,12 +735,28 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
         vWallC = wallc(mod(aMat, 8.0)); vRoofC = roofc(floor(aMat / 8.0)); vWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
     sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
         uniform vec3 uBuild; uniform vec3 uSelC; uniform float uMode; varying float vVis; varying vec3 vCol; varying float vFlash; varying float vY; varying float vTop; varying float vHi;
-        varying vec3 vWallC; varying vec3 vRoofC; varying vec3 vWPos;`)
+        varying vec3 vWallC; varying vec3 vRoofC; varying vec3 vWPos; varying float vLY; varying float vCat; varying float vS;`)
       .replace("vec4 diffuseColor = vec4( diffuse, opacity );", `if (vVis < 0.5) discard;
         vec3 cc = mix(vCol, uBuild, vFlash);
         if (uMode > 2.5) { vec3 wn = normalize(cross(dFdx(vWPos), dFdy(vWPos))); cc = abs(wn.y) > 0.45 ? vRoofC : vWallC; }   // roofs and walls by what they are made of
         if (vHi > 1.5) cc = uSelC; else if (vHi > 0.5) cc = mix(cc, uSelC, 0.4);
-        float ao = vTop > 0.999 ? 1.0 : mix(0.74, 1.0, smoothstep(0.0, 7.0, vY));
+        // windows: rows of panes on the walls of homes, shops, offices and schools, one storey above the other. They are drawn only
+        // where a pane is several pixels across, so the town seen from afar keeps its clean blocks. Along the wall the panes follow aS,
+        // the distance round the outline, so they run on round the corners; up the wall vTop (0 at the foot, 1 at the eaves) and the
+        // height above the ground give the wall's height, so the top storey keeps clear of the eaves. Roofs and gables have vTop 1.
+        // The derivatives are taken outside any branch, where they are defined on every GPU.
+        float fh = vCat < 0.5 ? 2.9 : 3.5, sp = vCat < 0.5 ? 3.1 : 3.3;
+        float ws = vS / sp, wf = vLY / fh, fs = fwidth(ws), ff = fwidth(wf);
+        float onWall = step(0.002, vTop) * step(vTop, 0.995) * step(vCat, 3.5);
+        if (onWall > 0.5) {
+          float H = vLY / vTop, keep = 1.0 - smoothstep(0.07, 0.16, max(fs, ff));
+          float room = step(floor(wf) * fh + 0.78 * fh, H - 0.45) * step(2.4, H);
+          float bx = fract(ws), by = fract(wf);
+          float wx = clamp(smoothstep(0.31 - fs, 0.31 + fs, bx) - smoothstep(0.69 - fs, 0.69 + fs, bx), 0.0, 1.0);
+          float wy = clamp(smoothstep(0.33 - ff, 0.33 + ff, by) - smoothstep(0.78 - ff, 0.78 + ff, by), 0.0, 1.0);
+          cc = mix(cc, cc * 0.36 + vec3(0.07, 0.08, 0.095), 0.88 * wx * wy * keep * room);
+        }
+        float ao = vTop > 0.999 ? 1.0 : mix(0.74, 1.0, smoothstep(0.0, 7.0, vLY));
         vec4 diffuseColor = vec4(cc * ao, opacity);`)
       .replace("vec3 totalEmissiveRadiance = emissive;", "vec3 totalEmissiveRadiance = emissive + uBuild * vFlash * 0.22;");
   };
@@ -993,7 +1060,10 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     setProgress(0.05);
     // ---- building geometry ----
     const P = D.P, R = D.R;
-    const pos = new Float32Array(P * 6), aT = new Float32Array(P * 2), aYear = new Uint16Array(P * 2), aCat = new Uint8Array(P * 2), aGroup = new Float32Array(P * 2), aBase = new Float32Array(P * 2), aMat = new Uint8Array(P * 2), aEnd = new Float32Array(P * 2);
+    // each ring point is a bottom and a top vertex; the first point is repeated at the end, so aS (metres along the outline, for the
+    // windows) runs without a jump round the whole ring
+    const NV = (P + R) * 2;
+    const pos = new Float32Array(NV * 3), aT = new Float32Array(NV), aYear = new Uint16Array(NV), aCat = new Uint8Array(NV), aGroup = new Float32Array(NV), aBase = new Float32Array(NV), aMat = new Uint8Array(NV), aEnd = new Float32Array(NV), aS = new Float32Array(NV);
     const idx = new Uint32Array(P * 6 + 3 * (P + 2 * R)); let ni = 0, vbase = 0;
     const CH = 5000;
     for (let i0 = 0; i0 < N; i0 += CH) {
@@ -1002,27 +1072,27 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
         const g = D.group[i], h = D.hdm[i] / 10, t = gT[g], ct = D.cat[i], gid = g + 1;
         const ay = D.flags[i] & FLAG_PRE1900 ? 1 : D.year[i];   // 1 marks "before 1900, year unknown"
         const hid = D.flags[i] & FLAG_HIDDEN, ni0 = ni, mc = D.mat ? D.mat.wall[i] + 8 * D.mat.roof[i] : 0;
-        const flat = [], holes = [], ringBase = [];
+        const flat = [], holes = [], topOf = [];
         const rb = ringOff[i], nr = D.nrings[i];
         for (let r = rb; r < rb + nr; r++) {
-          const n = D.ringLen[r]; let x = D.ringStart[2 * r], y = D.ringStart[2 * r + 1];
-          const d0 = 2 * (ptOff[r] - r);
+          const n = D.ringLen[r]; let x = D.ringStart[2 * r], y = D.ringStart[2 * r + 1], sAlong = 0, px0 = 0, py0 = 0;
+          const d0 = 2 * (ptOff[r] - r), b0 = vbase;
           if (r > rb) holes.push(flat.length / 2);
-          ringBase.push(vbase);
-          for (let k = 0; k < n; k++) {
-            if (k > 0) { x += D.delta[d0 + 2 * (k - 1)]; y += D.delta[d0 + 2 * (k - 1) + 1]; }
+          for (let k = 0; k <= n; k++) {
+            if (k > 0 && k < n) { x += D.delta[d0 + 2 * (k - 1)]; y += D.delta[d0 + 2 * (k - 1) + 1]; }
+            if (k === n) { x = D.ringStart[2 * r]; y = D.ringStart[2 * r + 1]; }   // the closing copy of the first point
             const X = x / 10, Y = y / 10, v = vbase * 3;
+            if (k > 0) sAlong += Math.hypot(X - px0, Y - py0); px0 = X; py0 = Y;
             pos[v] = X; pos[v + 1] = 0; pos[v + 2] = -Y; pos[v + 3] = X; pos[v + 4] = h; pos[v + 5] = -Y;
             aT[vbase] = aT[vbase + 1] = t; aYear[vbase] = aYear[vbase + 1] = ay; aCat[vbase] = aCat[vbase + 1] = ct; aGroup[vbase] = aGroup[vbase + 1] = gid; aBase[vbase] = aBase[vbase + 1] = fBase[i]; aMat[vbase] = aMat[vbase + 1] = mc; aEnd[vbase] = aEnd[vbase + 1] = gEndT[g];
-            flat.push(X, Y);
+            aS[vbase] = aS[vbase + 1] = sAlong;
+            if (k < n) { flat.push(X, Y); topOf.push(vbase + 1); }
             vbase += 2;
           }
-          const b0 = ringBase[ringBase.length - 1];
-          for (let k = 0; k < n; k++) { const j = (k + 1) % n, bi = b0 + 2 * k, bj = b0 + 2 * j; idx[ni++] = bi; idx[ni++] = bj; idx[ni++] = bj + 1; idx[ni++] = bi; idx[ni++] = bj + 1; idx[ni++] = bi + 1; }
+          for (let k = 0; k < n; k++) { const bi = b0 + 2 * k, bj = bi + 2; idx[ni++] = bi; idx[ni++] = bj; idx[ni++] = bj + 1; idx[ni++] = bi; idx[ni++] = bj + 1; idx[ni++] = bi + 1; }
         }
         const tri = earcut(flat, holes.length ? holes : null, 2);
-        const b0 = ringBase[0];
-        for (let k = 0; k < tri.length; k++) idx[ni++] = b0 + 2 * tri[k] + 1;   // vertices are interleaved bottom/top, so top = 2*v + 1
+        for (let k = 0; k < tri.length; k++) idx[ni++] = topOf[tri[k]];   // the roof over the top vertices
         if (hid) ni = ni0;   // a landmark drawn from its 3D parts: keep the outline's data, not its block
       }
       setProgress(0.05 + 0.85 * (i1 / N));
@@ -1037,6 +1107,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     geo.setAttribute("aBase", new THREE.BufferAttribute(aBase, 1));
     geo.setAttribute("aMat", new THREE.BufferAttribute(aMat, 1));
     geo.setAttribute("aEnd", new THREE.BufferAttribute(aEnd, 1));
+    geo.setAttribute("aS", new THREE.BufferAttribute(aS, 1));
     geo.setIndex(new THREE.BufferAttribute(idx.subarray(0, ni), 1));
     geo.computeBoundingSphere();
     const mesh = new THREE.Mesh(geo, bMat);
@@ -1411,8 +1482,10 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   // 5 hip, 6 mansard, 7 single slope, 8 taper (the part narrows toward a point, for the Eiffel Tower), 9 wedge (narrows along its length).
   function partsGeometry(list, gT, gYear, catOf, gBase, matOf, gEndT) {
     const pos = new Grow(Float32Array, 1 << 15), at = new Grow(Float32Array, 1 << 13), ay = new Grow(Float32Array, 1 << 13), ac = new Grow(Float32Array, 1 << 13), ag = new Grow(Float32Array, 1 << 13), ab = new Grow(Float32Array, 1 << 13), am = new Grow(Float32Array, 1 << 13), ae = new Grow(Float32Array, 1 << 13);
-    const ix = new Grow(Uint32Array, 1 << 15); let nv = 0, T = 0, Y = 0, Cc = 0, Gi = 0, Bz = 0, Mt = 0, Et = -1;
-    const V = (x, y, z) => { pos.reserve(3); pos.a[pos.n++] = x; pos.a[pos.n++] = y; pos.a[pos.n++] = -z; at.push1(T); ay.push1(Y); ac.push1(Cc); ag.push1(Gi); ab.push1(Bz); am.push1(Mt); ae.push1(Et); return nv++; };
+    const ix = new Grow(Uint32Array, 1 << 15), as = new Grow(Float32Array, 1 << 13); let nv = 0, T = 0, Y = 0, Cc = 0, Gi = 0, Bz = 0, Mt = 0, Et = -1, Sv = 0;
+    const V = (x, y, z) => { pos.reserve(3); pos.a[pos.n++] = x; pos.a[pos.n++] = y; pos.a[pos.n++] = -z; at.push1(T); ay.push1(Y); ac.push1(Cc); ag.push1(Gi); ab.push1(Bz); am.push1(Mt); ae.push1(Et); as.push1(Sv); return nv++; };
+    // a wall from point i to point j whose foot starts s0 metres along the outline; returns its length
+    const wallQ = (xi, zi, xj, zj, yb, yj, yi, s0) => { const L = Math.hypot(xj - xi, zj - zi); Sv = s0; const a = V(xi, yb, zi); Sv = s0 + L; const b = V(xj, yb, zj), c = V(xj, yj, zj); Sv = s0; const d = V(xi, yi, zi); Sv = 0; tri(a, b, c); tri(a, c, d); return L; };
     const tri = (a, b, c) => { ix.reserve(3); ix.a[ix.n++] = a; ix.a[ix.n++] = b; ix.a[ix.n++] = c; };
     const quad = (x0, z0, y0, x1, z1, y1, x2, z2, y2, x3, z3, y3) => { const a = V(x0, y0, z0), b = V(x1, y1, z1), c = V(x2, y2, z2), d = V(x3, y3, z3); tri(a, b, c); tri(a, c, d); };
     const ONION = [[0, 1], [0.12, 1.16], [0.3, 1.2], [0.5, 1.02], [0.68, 0.7], [0.84, 0.36], [0.95, 0.12], [1, 0]];
@@ -1470,8 +1543,8 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       }
       // walls, for every ring (holes too)
       rings.forEach((rr, ri) => {
-        const m = rr.length / 2;
-        for (let i = 0; i < m; i++) { const j = (i + 1) % m, yi = ri ? hw : top(i), yj = ri ? hw : top(j); quad(rr[2 * i], rr[2 * i + 1], b0, rr[2 * j], rr[2 * j + 1], b0, rr[2 * j], rr[2 * j + 1], yj, rr[2 * i], rr[2 * i + 1], yi); }
+        const m = rr.length / 2; let sw = 0;
+        for (let i = 0; i < m; i++) { const j = (i + 1) % m, yi = ri ? hw : top(i), yj = ri ? hw : top(j); sw += wallQ(rr[2 * i], rr[2 * i + 1], rr[2 * j], rr[2 * j + 1], b0, yj, yi, sw); }
       });
       if (k === 0 || k === 7) {   // flat cap (with holes), or the tilted cap of a single slope
         const flat = [], holes = []; rings.forEach((rr, ri) => { if (ri) holes.push(flat.length / 2); for (const v of rr) flat.push(v); });
@@ -1508,6 +1581,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     geo.setAttribute("aT", new THREE.BufferAttribute(at.get(), 1)); geo.setAttribute("aYear", new THREE.BufferAttribute(ay.get(), 1));
     geo.setAttribute("aCat", new THREE.BufferAttribute(ac.get(), 1)); geo.setAttribute("aGroup", new THREE.BufferAttribute(ag.get(), 1)); geo.setAttribute("aBase", new THREE.BufferAttribute(ab.get(), 1)); geo.setAttribute("aMat", new THREE.BufferAttribute(am.get(), 1));
     geo.setAttribute("aEnd", new THREE.BufferAttribute(ae.get(), 1));
+    geo.setAttribute("aS", new THREE.BufferAttribute(as.get(), 1));
     geo.setIndex(new THREE.BufferAttribute(ix.get(), 1));
     return geo;
   }
@@ -1723,6 +1797,8 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   const walkFov = () => isSmall() ? 64 : 56;
   const baseFov = () => WALK.on ? (WALK.landed ? WALK.fov : walkFov()) : isSmall() ? 50 : 34;
   const FOV_MIN = 16, FOV_MAX = 80;   // how far you can zoom in and out on the street
+  // før og nå: where the line sits (share of the screen width), and the year it opens on when the timeline stands at today
+  const CMP = { on: false, split: 0.5, y0: 1950, sx: "", ky: "", kx: "" };
   let needsRender = true, labelsDirty = true;
   const invalidate = () => { needsRender = true; labelsDirty = true; };
 
@@ -1733,6 +1809,10 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     $("brand").textContent = S.brand;
     $("q").placeholder = S.search; $("q").setAttribute("aria-label", S.search);
     $("walk-l").textContent = S.walk; $("walk-btn").setAttribute("aria-label", S.walkLabel); $("walk-btn").title = S.walkLabel;
+    $("cmp-l").textContent = S.cmp; $("cmp-btn").setAttribute("aria-label", S.cmpLabel); $("cmp-btn").title = S.cmpLabel;
+    $("split-knob").setAttribute("aria-label", S.cmpKnob); $("split-knob").title = S.cmpKnob;
+    $("card-street-l").textContent = S.street; $("card-street").title = S.streetLabel;
+    $("card-share-l").textContent = S.share; $("card-share").setAttribute("aria-label", S.shareLabel); $("card-share").title = S.shareLabel;
     $("walk-x").setAttribute("aria-label", S.walkEnd); $("walk-x").title = S.walkEnd;
     $("walk-c").textContent = S.walkCompass; $("walk-c").setAttribute("aria-label", S.walkCompassLabel); $("walk-c").title = S.walkCompassLabel;
     $("menu-btn").textContent = S.view; $("l-colour").textContent = S.colour; $("l-hoods").textContent = city ? cityText("hoods") : S.hoods; $("l-lang").textContent = S.language; $("l-roads").textContent = S.roads; $("l-undated").textContent = S.undated; $("l-notes").textContent = S.notes; $("l-sound").textContent = S.sound; $("about-btn").textContent = S.about;
@@ -1961,7 +2041,9 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       if (c.M.area) { const a = n ? c.cumArea[n - 1] : 0; $("n2").textContent = a >= 1e6 ? (a / 1e6).toLocaleString(LOCALE[LANG], { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " " + S.mio : fmtN(Math.round(a / 100) * 100); }
       $("range").setAttribute("aria-valuetext", String(y));
       for (const b of $("chaps").children) { const cp = c.chapters[+b.dataset.i]; if (cp) b.classList.toggle("seen", cp.t <= t); }
+      if (CMP.on) syncKnob();
     }
+    if (CMP.on) placeSplit();
     const live = playing && camMode === "follow" && t < TOTAL - FINALE ? hotspotName(t) : "";
     const lv = $("live"); const want = live ? `${S.nowBuilding} <b>${live}</b>` : "";
     if (lv.innerHTML !== want) lv.innerHTML = want;
@@ -2004,21 +2086,23 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     const showAll = !playing;
     const nowMs = performance.now();
     for (const l of [...c.lmsOrder.filter((q) => q.on), ...c.lmsOrder.filter((q) => !q.on)]) {
-      let vis = !rewinding && t >= l.t && (showAll || t - l.t < 7) && (l.on || !(nowMs - (l.offAt || 0) < 400)) && (camMode !== "walk" || (l.v.distanceToSquared(camera.position) < 450 * 450 && inSight(l.v, l.g ?? -1)));   // on the street, only landmarks nearby and in sight
-      let x = 0, y = 0;
+      let vis = !rewinding && (l.on || !(nowMs - (l.offAt || 0) < 400)), x = 0, y = 0, tt = t;
       if (vis) { _v.copy(l.v).project(camera); x = (_v.x * 0.5 + 0.5) * Wd; y = (-_v.y * 0.5 + 0.5) * Hd; vis = _v.z < 1 && x > 0 && x < Wd && y > 0 && y < Hd; }
+      if (vis) { tt = sideT(x); vis = tt >= l.t && (showAll || tt >= TOTAL || tt - l.t < 7); }   // in før og nå each side of the line has its own year
+      if (vis && camMode === "walk") vis = l.v.distanceToSquared(camera.position) < 450 * 450 && inSight(l.v, l.g ?? -1);   // on the street, only landmarks nearby and in sight
       if (vis) {
         if (!l.w) { l.w = l.el.offsetWidth || 90; l.h = l.el.offsetHeight || 40; }
         const box = [x - 3, y - l.h, x + l.w, y - l.h + 17], line = [x - 3, y - l.h + 17, x + 3, y];   // the name, and the leader line under it
         if (box[0] < 16 || box[2] > Wd - 16 || box[1] < 6 || hit(box) || hit(line)) vis = false; else placed.push(box, line);
       }
       if (vis !== l.on) { l.el.classList.toggle("on", vis); l.on = vis; if (!vis) l.offAt = nowMs; }
-      if (vis) { l.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(0, -100%)`; l.el.classList.toggle("fresh", playing && t - l.t < 7); }
+      if (vis) { l.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(0, -100%)`; l.el.classList.toggle("fresh", playing && tt < TOTAL && tt - l.t < 7); }
     }
     for (const L of [...(c.sls || []).filter((q) => q.on), ...(c.sls || []).filter((q) => !q.on)]) {
-      let vis = camMode !== "walk" && roadsOn && !rewinding && t >= L.tA && t < L.tB && (showAll || t - L.tA < 9) && (L.on || !(nowMs - (L.offAt || 0) < 400));
+      let vis = camMode !== "walk" && roadsOn && !rewinding && (L.on || !(nowMs - (L.offAt || 0) < 400));
       let x = 0, y = 0;
       if (vis) { _v.copy(L.v).project(camera); x = (_v.x * 0.5 + 0.5) * Wd; y = (-_v.y * 0.5 + 0.5) * Hd; vis = _v.z < 1 && x > 20 && x < Wd - 20 && y > 20 && y < Hd - 20; }
+      if (vis) { const tt = sideT(x); vis = tt >= L.tA && tt < L.tB && (showAll || tt >= TOTAL || tt - L.tA < 9); }
       if (vis) {
         if (!L.w) { L.w = L.el.offsetWidth || 120; L.h = L.el.offsetHeight || 16; }
         const box = [x - L.w / 2 - 6, y - L.h / 2 - 3, x + L.w / 2 + 6, y + L.h / 2 + 3];
@@ -2047,7 +2131,9 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (!city) return -1;
     const r = renderer.domElement.getBoundingClientRect(), pr = renderer.getPixelRatio();
     camera.setViewOffset(r.width * pr, r.height * pr, Math.floor((cx - r.left) * pr), Math.floor((cy - r.top) * pr), 1, 1);
+    const tKeep = U.uT.value; if (CMP.on) U.uT.value = sideT(cx);   // in før og nå, the side tapped decides which buildings stand
     renderer.setRenderTarget(pickRT); renderer.setClearColor(0x000000, 1); renderer.clear(); renderer.render(pickScene, camera);
+    U.uT.value = tKeep;
     renderer.readRenderTargetPixels(pickRT, 0, 0, 1, 1, px); renderer.setRenderTarget(null); renderer.setClearColor(hex(C.table), 1);
     camera.clearViewOffset();
     const id = px[0] + px[1] * 256 + px[2] * 65536;
@@ -2173,10 +2259,12 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     setIntroText();
     if (store.get("aarringe-intro") === "seen" && !still) {   // the intro is shown once; after that the city just starts
       $("intro").hidden = true; introStart = 0; clearTimeout(introTimer);
+      // the one visit after something new: the news, with the town standing still so nothing covers it; after that, as before
+      if (store.get("aarringe-news-1") !== "seen") { store.set("aarringe-news-1", "seen"); setTimeout(() => showToast(S.news, () => setCompare(true), S.newsTry, 12000), 700); return; }
       if (!reduce) introTimer = setTimeout(() => { if (!playing && !rewinding && camMode !== "tween") rewindAndPlay(); }, 1200);
       return;
     }
-    $("intro").hidden = false; introStart = performance.now();
+    $("intro").hidden = false; introStart = performance.now(); store.set("aarringe-news-1", "seen");
     $("countdown").style.width = "0";
     clearTimeout(introTimer);
     if (!reduce && !still) introTimer = setTimeout(() => { if (!$("intro").hidden) startFromIntro(); }, 4200);
@@ -2252,9 +2340,9 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   $("cap-x").onclick = () => { hideCaption(); capQueue = []; };
   $("cap-off").onclick = () => { setNotes(false); showToast(S.notesGone, () => setNotes(true)); };
   let toastTimer = 0, toastAction = null;
-  function showToast(text, action, label) {
+  function showToast(text, action, label, ms) {
     $("toast-t").textContent = text; toastAction = action; $("toast-undo").hidden = !action; $("toast-undo").textContent = label || S.undo; $("toast").hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; }, 6000);
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { $("toast").hidden = true; }, ms || 6000);
   }
   $("toast-undo").onclick = () => { $("toast").hidden = true; if (toastAction) toastAction(); };
   // the plate folds down to the year alone (remembered)
@@ -2379,7 +2467,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     if (loadingNow) { if (e.key !== "Tab") e.preventDefault(); return; }
     // Escape works from anywhere except the search field, which handles its own
     if (e.key === "Escape" && e.target !== q) {
-      if (!$("sheet").hidden) closeSheet(); else if (!$("menu").hidden) closeMenu(true); else if (selected >= 0) select(-1); else if (!$("intro").hidden) hideIntro(); else if (WALK.on) stopWalk(true);
+      if (!$("sheet").hidden) closeSheet(); else if (!$("menu").hidden) closeMenu(true); else if (selected >= 0) select(-1); else if (!$("intro").hidden) hideIntro(); else if (WALK.on) stopWalk(true); else if (CMP.on) setCompare(false);
       return;
     }
     if (!city || e.target.closest("input, textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -2479,16 +2567,18 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       if (!moved) return;
     }
   }
-  function insideStanding(P) {
-    const G = walkGrid(), D = city.D, list = G.cells.get(Math.floor(P.x / G.CELL) + "," + Math.floor(P.z / G.CELL)); if (!list) return false;
+  // the building standing (in the year on screen) at a point on the ground, or -1
+  function whoStands(P) {
+    const G = walkGrid(), D = city.D, list = G.cells.get(Math.floor(P.x / G.CELL) + "," + Math.floor(P.z / G.CELL)); if (!list) return -1;
     for (const i of list) {
       if (!standsNow(D.group[i])) continue;
       let inside = false;
       for (const a of G.rings[i]) { const n = a.length / 2; for (let k = 0, j = n - 1; k < n; j = k++) { const xk = a[2 * k], zk = a[2 * k + 1], xj = a[2 * j], zj = a[2 * j + 1]; if ((zk > P.z) !== (zj > P.z) && P.x < (xj - xk) * (P.z - zk) / (zj - zk) + xk) inside = !inside; } }
-      if (inside) return true;
+      if (inside) return D.group[i];
     }
-    return false;
+    return -1;
   }
+  const insideStanding = (P) => whoStands(P) >= 0;
   // whether the line from your eyes to a point is free of hills and of standing buildings other than the point's own
   function inSight(v, own) {
     const G = walkGrid(), D = city.D, c = city, o = camera.position, dx = v.x - o.x, dy = v.y - o.y, dz = v.z - o.z, L = Math.hypot(dx, dz);
@@ -2634,15 +2724,8 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   function dropAt(cx, cy) {
     if (!city || loadingNow) return false;
     const g = pick(cx, cy); let spot = null;
-    if (g >= 0) {
-      const c = city, bx = c.gX[g], bz = c.gZ[g]; let dx = camera.position.x - bx, dz = camera.position.z - bz; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
-      const P = { x: bx, z: bz };
-      for (let st = 1; st < 400 && insideStanding(P); st++) { P.x = bx + dx * st; P.z = bz + dz * st; }
-      const back = clamp(Math.max(c.gH[g] * 1.6, Math.sqrt(c.gArea[g]) * 0.9), 12, 70);   // the whole front in view
-      P.x += dx * back; P.z += dz * back;
-      for (let st = 0; st < 60 && insideStanding(P); st++) { P.x += dx * 2; P.z += dz * 2; }   // not inside the house across the street
-      spot = { x: P.x, z: P.z, yaw: Math.atan2(-dx, dz) * 180 / Math.PI, pitch: clamp(Math.atan2(c.gH[g] * 0.45 - EYE, Math.hypot(P.x - bx, P.z - bz)) * 180 / Math.PI, -3, 25) };
-    } else {
+    if (g >= 0) { spot = spotFor(g); if (!spot) return false; }
+    else {
       const h = groundHit(cx, cy); if (!h) return false;
       spot = { x: h.x, z: h.z, yaw: Math.atan2(h.x - camera.position.x, -(h.z - camera.position.z)) * 180 / Math.PI };
     }
@@ -2740,6 +2823,199 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
   $("walk-btn").onclick = () => { if (WALK.on) stopWalk(true); else startWalk(); };
   $("walk-x").onclick = () => stopWalk(true);
   $("walk-c").onclick = () => setCompass(!WALK.compass);
+
+  // ---------------- where to stand to see a building ----------------
+  // In the middle of the street in front of it when a street is near, else on open ground; on the side the view comes from when
+  // that is as good, and far enough back to see the whole front. The streets are the map's road surfaces, rasterised once at 2 m.
+  function roadMask() {
+    const c = city; if (c.roadMask) return c.roadMask;
+    const b = c.bounds, CS = 2, nx = Math.ceil((b[1] - b[0]) / CS), nz = Math.ceil((b[3] - b[2]) / CS), m = new Uint8Array(nx * nz);
+    for (const rings of c.M.roads || []) {
+      const rows = new Map();
+      for (const r of rings) {
+        const d = decodeRing(r, 1), n = d.length / 2;
+        for (let k = 0, j = n - 1; k < n; j = k++) {
+          const x1 = d[2 * j], z1 = -d[2 * j + 1], x2 = d[2 * k], z2 = -d[2 * k + 1];
+          const r0 = Math.max(0, Math.floor((Math.min(z1, z2) - b[2]) / CS - 0.5)), r1 = Math.min(nz - 1, Math.ceil((Math.max(z1, z2) - b[2]) / CS - 0.5));
+          for (let row = r0; row <= r1; row++) {
+            const zc = b[2] + (row + 0.5) * CS; if ((z1 > zc) === (z2 > zc)) continue;
+            if (!rows.has(row)) rows.set(row, []);
+            rows.get(row).push(x1 + (zc - z1) / (z2 - z1) * (x2 - x1));
+          }
+        }
+      }
+      for (const [row, xs] of rows) {
+        xs.sort((a, b2) => a - b2);
+        for (let q = 0; q + 1 < xs.length; q += 2) { const c0 = Math.max(0, Math.ceil((xs[q] - b[0]) / CS - 0.5)), c1 = Math.min(nx - 1, Math.floor((xs[q + 1] - b[0]) / CS - 0.5)); for (let col = c0; col <= c1; col++) m[row * nx + col] = 1; }
+      }
+    }
+    return (c.roadMask = { m, nx, nz, CS, x0: b[0], z0: b[2] });
+  }
+  function onRoad(x, z) { const R = roadMask(), col = Math.floor((x - R.x0) / R.CS), row = Math.floor((z - R.z0) / R.CS); return col >= 0 && row >= 0 && col < R.nx && row < R.nz && R.m[row * R.nx + col] === 1; }
+  function spotFor(g) {
+    const c = city, bx = c.gX[g], bz = c.gZ[g], h = c.gH[g];
+    let cdx = camera.position.x - bx, cdz = camera.position.z - bz; const cl = Math.hypot(cdx, cdz) || 1; cdx /= cl; cdz /= cl;
+    const want = clamp(Math.max(h * 1.6, Math.sqrt(c.gArea[g]) * 0.9), 12, 70), P = { x: 0, z: 0 };
+    let best = null;
+    for (let k = 0; k < 24; k++) {
+      const a = (k / 24) * Math.PI * 2, dx = Math.sin(a), dz = Math.cos(a);
+      let e = 0; P.x = bx; P.z = bz;
+      while (e < 300 && insideStanding(P)) { e += 1; P.x = bx + dx * e; P.z = bz + dz * e; }   // out through the wall on this side
+      if (e >= 300) continue;
+      // out from the wall until the next house: the farthest spot on a street within the distance wanted, else the farthest free one;
+      // a street that starts just beyond that distance is fine too. A narrow street means standing on its far side.
+      let roadD = -1, freeD = -1, nearRoad = -1;
+      for (let d = 2; d <= want + 20; d++) {
+        P.x = bx + dx * (e + d); P.z = bz + dz * (e + d);
+        if (insideStanding(P)) break;
+        const on = onRoad(P.x, P.z);
+        if (d <= want) { freeD = d; if (on) roadD = d; } else if (on && nearRoad < 0) nearRoad = d;
+      }
+      const road = roadD >= 0 || nearRoad >= 0, d = roadD >= 4 ? roadD : nearRoad >= 0 && roadD < 0 ? nearRoad : freeD - 2;
+      if (d < 4) continue;
+      const x = bx + dx * (e + d), z = bz + dz * (e + d);
+      if (!inTown(x, z)) continue;
+      // how much of the house is hidden: lines from the spot to points along its front, blocked by another standing building
+      let blocked = 0, rays = 0;
+      for (const off of [-0.5, 0, 0.5]) {
+        const ox = bx + dx * e - dz * off * Math.sqrt(c.gArea[g]) * 0.5, oz = bz + dz * e + dx * off * Math.sqrt(c.gArea[g]) * 0.5, L = Math.hypot(ox - x, oz - z);
+        let hit = false;
+        for (let q = 1.5; q < L - 1; q += 1.5) { P.x = x + (ox - x) * q / L; P.z = z + (oz - z) * q / L; const w = whoStands(P); if (w >= 0 && w !== g) { hit = true; break; } }
+        rays++; if (hit) blocked++;
+      }
+      // a street is good, a clear view is better, and standing so close that the house is a wall is worst; the side the view came from breaks ties
+      const score = (road ? 0 : 20) + Math.abs(d - want) * 0.25 + Math.max(0, 0.7 * want - d) * 1.8 - (dx * cdx + dz * cdz) * 8 + (e > 60 ? 10 : 0) + 45 * blocked / rays;
+      if (!best || score < best.score) best = { x, z, d, score };
+    }
+    if (!best) {   // a cramped yard: straight out on the side the view comes from
+      const Q = { x: bx, z: bz };
+      for (let st = 1; st < 400 && insideStanding(Q); st++) { Q.x = bx + cdx * st; Q.z = bz + cdz * st; }
+      Q.x += cdx * want; Q.z += cdz * want;
+      for (let st = 0; st < 60 && insideStanding(Q); st++) { Q.x += cdx * 2; Q.z += cdz * 2; }
+      best = { x: Q.x, z: Q.z, d: want };
+    }
+    const dist = Math.hypot(best.x - bx, best.z - bz) || 1;
+    return { x: best.x, z: best.z, yaw: Math.atan2((bx - best.x) / dist, -(bz - best.z) / dist) * 180 / Math.PI, pitch: clamp(Math.atan2(h * 0.45 - EYE, best.d + 2) * 180 / Math.PI, -3, 25) };
+  }
+  // the card's button: down on the street in front of the house, in the year on screen (or the year it was built, if later)
+  function streetView(g) {
+    if (!city || g < 0) return;
+    if (city.gYear[g] && t < city.gT[g] + RISE + 0.1) jumpTo(Math.min(TOTAL, city.gT[g] + RISE + 0.1));
+    const spot = spotFor(g); if (!spot) return;
+    select(-1);
+    if (WALK.on) { clearTimeout(WALK.timer); stopWatch(); } else beginWalk();
+    land(false, "walkDropped", spot);
+  }
+  $("card-street").onclick = () => { if (selected >= 0) streetView(selected); };
+
+  // ---------------- før og nå ----------------
+  // The screen is drawn twice, each half cut out with the scissor: left of the line the town in the year on the timeline, right of it
+  // the town today. Each pass renders its own shadows, so a house that is not built yet casts none on its side.
+  const splitEl = $("split"), knob = $("split-knob");
+  const splitPx = () => Math.round(CMP.split * innerWidth);
+  const sideT = (x) => CMP.on && x >= splitPx() ? TOTAL : t;
+  function renderSplit() {
+    const W = innerWidth, H = innerHeight, sx = splitPx(), mark = U.uMarkOn.value;
+    renderer.setScissorTest(true);
+    renderer.setScissor(0, 0, sx, H); renderer.render(scene, camera);
+    U.uT.value = TOTAL; U.uNow.value = city.W.tToYear(TOTAL); U.uMarkOn.value = 0;
+    renderer.setScissor(sx, 0, W - sx, H); renderer.render(scene, camera);
+    U.uT.value = t; U.uNow.value = city.W.tToYear(t); U.uMarkOn.value = mark;
+    renderer.setScissorTest(false);
+  }
+  // the line where you left it; the knob halfway down the part of the screen the panels leave open
+  function placeSplit() {
+    const sx = splitPx() + "px";
+    if (sx !== CMP.sx) { CMP.sx = sx; document.documentElement.style.setProperty("--sx", sx); }
+    const top = Math.max(document.querySelector(".plate").getBoundingClientRect().bottom, WALK.on && isSmall() ? $("walkchip").getBoundingClientRect().bottom : 0);
+    const card = $("card"), bot = isSmall() && !card.hidden ? card.getBoundingClientRect().top : document.querySelector(".bar").getBoundingClientRect().top;
+    const ky = Math.round((top + bot) / 2) + "px";
+    if (ky !== CMP.ky) { CMP.ky = ky; document.documentElement.style.setProperty("--ky", ky); }
+    // near an edge the knob slides along the line so it stays whole on screen
+    const kw = knob.offsetWidth || 140, x = splitPx(), kx = Math.round(clamp(x, kw / 2 + 8, innerWidth - kw / 2 - 8) - x) + "px";
+    if (kx !== CMP.kx) { CMP.kx = kx; document.documentElement.style.setProperty("--kx", kx); }
+  }
+  function syncKnob() { if (!city) return; const y = String(Math.min(2026, Math.floor(city.W.tToYear(t)))); if ($("split-a").textContent !== y) $("split-a").textContent = y; }
+  function setCompare(on) {
+    if (!city || on === CMP.on) return;
+    CMP.on = on; document.body.classList.toggle("comparing", on); $("cmp-btn").setAttribute("aria-pressed", String(on));
+    if (on) {
+      hideIntro();
+      if (t >= TOTAL - 0.01 && !playing && !rewinding) jumpTo(city.W.yearToT(CMP.y0 + 0.5));   // today against today shows nothing: open on 1950
+      splitEl.hidden = false; placeSplit(); syncKnob();
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (CMP.on) splitEl.classList.add("on"); }));
+      if (store.get("aarringe-cmp-hint") !== "seen") { store.set("aarringe-cmp-hint", "seen"); showToast(S.cmpHint, null, null, 9000); }
+    } else { splitEl.classList.remove("on"); setTimeout(() => { if (!CMP.on) splitEl.hidden = true; }, 260); }
+    invalidate();
+  }
+  let sDrag = null;
+  function splitDown(e) {
+    e.preventDefault(); e.stopPropagation();
+    sDrag = { id: e.pointerId, dx: e.clientX - splitPx(), el: e.currentTarget }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is gone */ }
+    document.body.classList.add("dragsplit"); hideIntro(true); tip.hidden = true;
+  }
+  function splitMove(e) { if (!sDrag || e.pointerId !== sDrag.id) return; CMP.split = clamp((e.clientX - sDrag.dx) / innerWidth, 0.04, 0.96); placeSplit(); invalidate(); }
+  function splitUp(e) { if (sDrag && e.pointerId === sDrag.id) { sDrag = null; document.body.classList.remove("dragsplit"); } }
+  for (const el of [knob, $("split-hit")]) { el.addEventListener("pointerdown", splitDown); el.addEventListener("pointermove", splitMove); el.addEventListener("pointerup", splitUp); el.addEventListener("pointercancel", splitUp); }
+  knob.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault(); e.stopPropagation(); CMP.split = clamp(CMP.split + (e.key === "ArrowLeft" ? -0.03 : 0.03), 0.04, 0.96); placeSplit(); invalidate();
+  });
+  $("cmp-btn").onclick = () => setCompare(!CMP.on);
+
+  // ---------------- links to a house, a year or a comparison ----------------
+  // #hus=Langgaten+28&p=147,-122&aar=1900&fn=1 opens the page on that house (found by its place, in metres east and north of the
+  // town's origin, or else by its name), in that year, with før og nå on. The page takes the link off the address once it is used.
+  function linkFor(g) {
+    const h = new URLSearchParams();
+    if (g >= 0) { const n = lmName(g) || addrOf(g); if (n) h.set("hus", n); h.set("p", Math.round(city.gX[g]) + "," + Math.round(-city.gZ[g])); }
+    if (t < TOTAL - 0.01) h.set("aar", String(Math.min(2026, Math.floor(city.W.tToYear(t)))));
+    if (CMP.on) h.set("fn", "1");
+    return location.origin + location.pathname + "#" + h.toString();
+  }
+  function copyText(text) {
+    const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;left:-9999px;top:0;-webkit-user-select:text;user-select:text"; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+    ta.remove(); return ok;
+  }
+  async function shareLink(g) {
+    const url = linkFor(g), name = g >= 0 ? lmName(g) || addrOf(g) : "", title = (name ? name + ", " : "") + document.title;
+    if (navigator.share && touchFirst) { try { await navigator.share({ title, url }); return; } catch (err) { if (err && err.name === "AbortError") return; } }
+    let ok = false; try { await navigator.clipboard.writeText(url); ok = true; } catch (err) { ok = copyText(url); }
+    showToast(ok ? S.linkCopied : S.linkFail);
+  }
+  $("card-share").onclick = () => { if (selected >= 0) shareLink(selected); };
+  function readLink() {
+    const raw = location.hash.slice(1); if (!raw) return null;
+    const h = new URLSearchParams(raw), L = { hus: h.get("hus"), p: null, aar: parseInt(h.get("aar"), 10) || 0, fn: h.get("fn") === "1" };
+    const pp = (h.get("p") || "").split(",").map(Number); if (pp.length === 2 && pp.every(Number.isFinite)) L.p = pp;
+    return L.hus || L.p || L.aar || L.fn ? L : null;
+  }
+  // the name decides, the place picks between buildings that share one (an address with a shed, a school of four buildings);
+  // a building with no name, or a name that has changed, is found by its place alone
+  function findLinked(L) {
+    const c = city, n = L.hus ? norm(L.hus) : "", x = L.p ? L.p[0] : 0, z = L.p ? -L.p[1] : 0;
+    const dist = (g) => L.p ? (c.gX[g] - x) ** 2 + (c.gZ[g] - z) ** 2 : 0;
+    let named = -1, nd = Infinity, near = -1, bd = Infinity;
+    for (let g = 0; g < c.G; g++) {
+      if (c.gFirst[g] < 0) continue;
+      const d = dist(g);
+      if (n && norm(lmName(g) || addrOf(g)) === n && d < nd) { nd = d; named = g; }
+      if (L.p && d < bd) { bd = d; near = g; }
+    }
+    if (named >= 0 && (!L.p || nd < 150 * 150)) return named;
+    return L.p && bd < 30 * 30 ? near : named;
+  }
+  function applyLink(L) {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (err) { /* a sandboxed page */ }
+    hideIntro(); setFollow(false);
+    if (L.aar) jumpTo(L.aar >= 2026 ? TOTAL : city.W.yearToT(clamp(L.aar, city.firstYear, 2025) + 0.5));
+    if (L.fn) setCompare(true);
+    const g = L.hus || L.p ? findLinked(L) : -1;
+    if (g >= 0) select(g, true); else if (L.hus || L.p) showToast(S.linkMissing);
+  }
+  window.addEventListener("hashchange", () => { const L = readLink(); if (L && city && !loadingNow) { if (WALK.on) stopWalk(false); applyLink(L); } });
 
   // ---------------- layout ----------------
   let planTimer = 0;
@@ -2847,7 +3123,9 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
       // trees near the camera get the finer crown; the switch sits where a crown is a few pixels wide
       const lodD = isSmall() ? 700 : 1300;
       for (const tt of city.treeTiles) { const near = tt.c.distanceTo(camera.position) < lodD; tt.hi.visible = city.treesOn && near; tt.lo.visible = city.treesOn && !near; }
-      renderer.render(scene, camera);
+      const skyA = camMode === "walk" ? (WALK.fly ? WALK.flyE : 1) : camMode === "tween" && tw.fog0 ? 1 - tw.e : 0;
+      sky.visible = skyA > 0.002; if (sky.visible) { skyU.uA.value = skyA; sky.position.copy(camera.position); sky.scale.setScalar(camera.far * 0.5); }
+      if (CMP.on) renderSplit(); else renderer.render(scene, camera);
       needsRender = false;
       frameTimes.push(dt * 1000);   // time between frames includes the GPU work of the previous one
       if (frameTimes.length > 90) frameTimes.splice(0, frameTimes.length - 90);
@@ -2944,7 +3222,7 @@ const CATS = ["#b9583a", "#4f6f8c", "#c99a3a", "#7f6a9c", "#4f8a63", "#a39a8a"];
     city.tgOff = 0; lastCamMode = "free";
     setInert(false); L.classList.add("done"); setTimeout(() => { if (token === loadSeq) L.hidden = true; }, 520);
     if (cityBtnFocused) { const cb = [...$("cities").children].find((b) => b.dataset.city === id); if (cb) cb.focus(); }
-    showIntro();
+    const link = readLink(); if (link) applyLink(link); else showIntro();
   }
 
   applyStrings(); drawKey(); resize();

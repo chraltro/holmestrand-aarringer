@@ -4,6 +4,8 @@ Holmestrand og Rove vokser frem bygning for bygning, fra kirken i 1674 til det n
 
 Åpne siden og trykk på en bygning for å se året og hvor det kommer fra. «Om dataene og kildene» i menyen forklarer kildene.
 
+«Før og nå» viser et år og i dag side om side, «Gå rundt» setter deg ned på gaten, og kortet for hvert hus kan dele en lenke til det.
+
 ## Data
 
 - Omriss, veier og historiske jernbaner: © OpenStreetMap-bidragsytere, ODbL
